@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,7 +38,6 @@ public class EditWatchedFragment extends Fragment {
     private WatchedEntry entryToEdit;
     private Calendar selectedDate;
     private SimpleDateFormat dateFormat;
-    private NumberFormat currencyFormat;
 
     public static EditWatchedFragment newInstance(WatchedEntry entry) {
         EditWatchedFragment fragment = new EditWatchedFragment();
@@ -61,15 +60,13 @@ public class EditWatchedFragment extends Fragment {
         
         setupViewModel();
         loadEntryData();
-        setupDatePicker();
-        setupGenreAutocomplete();
+        setupSpinners();
         setupClickListeners();
     }
 
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(WatchedViewModel.class);
         dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        currencyFormat = NumberFormat.getCurrencyInstance(Locale.getDefault());
         selectedDate = Calendar.getInstance();
     }
 
@@ -80,6 +77,26 @@ public class EditWatchedFragment extends Fragment {
                 populateForm();
             }
         }
+    }
+
+    private void setupSpinners() {
+        // Location spinner
+        List<String> locations = new ArrayList<>();
+        for (LocationType location : LocationType.values()) {
+            locations.add(location.name().replace("_", " "));
+        }
+        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, locations);
+        locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerLocation.setAdapter(locationAdapter);
+
+        // Time spinner
+        List<String> times = new ArrayList<>();
+        for (TimeOfDay time : TimeOfDay.values()) {
+            times.add(time.name());
+        }
+        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, times);
+        timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerTime.setAdapter(timeAdapter);
     }
 
     private void populateForm() {
@@ -101,42 +118,28 @@ public class EditWatchedFragment extends Fragment {
             Date date = dateFormat.parse(entryToEdit.watchedDate);
             if (date != null) {
                 selectedDate.setTime(date);
-                binding.editDate.setText(dateFormat.format(date));
+                binding.buttonDate.setText("📅 " + dateFormat.format(selectedDate.getTime()));
             }
         } catch (ParseException e) {
-            binding.editDate.setText(entryToEdit.watchedDate);
+            binding.buttonDate.setText("📅 " + entryToEdit.watchedDate);
         }
 
         // Location type
-        switch (entryToEdit.locationType) {
-            case "THEATER":
-                binding.chipTheater.setChecked(true);
-                break;
-            case "HOME":
-                binding.chipHome.setChecked(true);
-                break;
-            case "FRIENDS_HOME":
-                binding.chipFriends.setChecked(true);
-                break;
-            case "OTHER":
-                binding.chipOther.setChecked(true);
-                break;
+        try {
+            LocationType locationType = LocationType.valueOf(entryToEdit.locationType);
+            int locationIndex = locationType.ordinal();
+            binding.spinnerLocation.setSelection(locationIndex);
+        } catch (IllegalArgumentException e) {
+            binding.spinnerLocation.setSelection(0);
         }
 
         // Time of day
-        switch (entryToEdit.timeOfDay) {
-            case "MORNING":
-                binding.chipMorning.setChecked(true);
-                break;
-            case "AFTERNOON":
-                binding.chipAfternoon.setChecked(true);
-                break;
-            case "EVENING":
-                binding.chipEvening.setChecked(true);
-                break;
-            case "NIGHT":
-                binding.chipNight.setChecked(true);
-                break;
+        try {
+            TimeOfDay timeOfDay = TimeOfDay.valueOf(entryToEdit.timeOfDay);
+            int timeIndex = timeOfDay.ordinal();
+            binding.spinnerTime.setSelection(timeIndex);
+        } catch (IllegalArgumentException e) {
+            binding.spinnerTime.setSelection(0);
         }
 
         // Genre
@@ -155,81 +158,24 @@ public class EditWatchedFragment extends Fragment {
             binding.editCompanions.setText(entryToEdit.companions);
         }
 
-        // Location notes
-        if (entryToEdit.locationNotes != null) {
-            binding.editLocationNotes.setText(entryToEdit.locationNotes);
-        }
-
         // Notes
         if (entryToEdit.notes != null) {
             binding.editNotes.setText(entryToEdit.notes);
         }
     }
 
-    private void setupDatePicker() {
-        binding.editDate.setOnClickListener(v -> showDatePicker());
+    private void setupClickListeners() {
+        binding.buttonDate.setOnClickListener(v -> showDatePicker());
+        binding.buttonSave.setOnClickListener(v -> updateMovie());
+        binding.buttonCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        binding.buttonDelete.setOnClickListener(v -> deleteMovie());
     }
 
     private void showDatePicker() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                getContext(),
-                (view, year, month, dayOfMonth) -> {
-                    selectedDate.set(year, month, dayOfMonth);
-                    binding.editDate.setText(dateFormat.format(selectedDate.getTime()));
-                },
-                selectedDate.get(Calendar.YEAR),
-                selectedDate.get(Calendar.MONTH),
-                selectedDate.get(Calendar.DAY_OF_MONTH)
-        );
-        datePickerDialog.show();
-    }
-
-    private void setupGenreAutocomplete() {
-        viewModel.getAllGenres().observe(getViewLifecycleOwner(), genres -> {
-            if (genres != null) {
-                List<String> genreNames = new ArrayList<>();
-                for (com.entertainment.moviememo.data.entities.Genre genre : genres) {
-                    genreNames.add(genre.name);
-                }
-                
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                        getContext(),
-                        android.R.layout.simple_dropdown_item_1line,
-                        genreNames
-                );
-                binding.editGenre.setAdapter(adapter);
-            }
-        });
-    }
-
-    private void setupClickListeners() {
-        binding.buttonCancel.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                getActivity().onBackPressed();
-            }
-        });
-
-        binding.buttonDelete.setOnClickListener(v -> showDeleteConfirmation());
-
-        binding.buttonSave.setOnClickListener(v -> updateMovie());
-    }
-
-    private void showDeleteConfirmation() {
-        new android.app.AlertDialog.Builder(getContext())
-                .setTitle("Delete Movie")
-                .setMessage("Are you sure you want to delete \"" + entryToEdit.title + "\"?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteMovie())
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void deleteMovie() {
-        viewModel.deleteWatched(entryToEdit);
-        Toast.makeText(getContext(), "Movie deleted successfully!", Toast.LENGTH_SHORT).show();
-        
-        if (getActivity() != null) {
-            getActivity().onBackPressed();
-        }
+        new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+            selectedDate.set(year, month, dayOfMonth);
+            binding.buttonDate.setText("📅 " + dateFormat.format(selectedDate.getTime()));
+        }, selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     private void updateMovie() {
@@ -251,16 +197,26 @@ public class EditWatchedFragment extends Fragment {
         }
     }
 
+    private void deleteMovie() {
+        if (entryToEdit != null) {
+            viewModel.deleteWatched(entryToEdit);
+            Toast.makeText(getContext(), "🗑️ Movie deleted!", Toast.LENGTH_SHORT).show();
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        }
+    }
+
     private boolean validateForm() {
         boolean isValid = true;
 
         // Validate title (required)
         String title = binding.editTitle.getText().toString().trim();
         if (TextUtils.isEmpty(title)) {
-            binding.layoutTitle.setError("Title is required");
+            binding.editTitle.setError("Title is required");
             isValid = false;
         } else {
-            binding.layoutTitle.setError(null);
+            binding.editTitle.setError(null);
         }
 
         // Validate rating (0-10)
@@ -269,13 +225,13 @@ public class EditWatchedFragment extends Fragment {
             try {
                 int rating = Integer.parseInt(ratingText);
                 if (rating < 0 || rating > 10) {
-                    binding.layoutRating.setError("Rating must be between 0 and 10");
+                    binding.editRating.setError("Rating must be between 0 and 10");
                     isValid = false;
                 } else {
-                    binding.layoutRating.setError(null);
+                    binding.editRating.setError(null);
                 }
             } catch (NumberFormatException e) {
-                binding.layoutRating.setError("Invalid rating format");
+                binding.editRating.setError("Invalid rating format");
                 isValid = false;
             }
         }
@@ -286,30 +242,30 @@ public class EditWatchedFragment extends Fragment {
             try {
                 int duration = Integer.parseInt(durationText);
                 if (duration <= 0) {
-                    binding.layoutDuration.setError("Duration must be positive");
+                    binding.editDuration.setError("Duration must be positive");
                     isValid = false;
                 } else {
-                    binding.layoutDuration.setError(null);
+                    binding.editDuration.setError(null);
                 }
             } catch (NumberFormatException e) {
-                binding.layoutDuration.setError("Invalid duration format");
+                binding.editDuration.setError("Invalid duration format");
                 isValid = false;
             }
         }
 
-        // Validate spend amount
+        // Validate spend
         String spendText = binding.editSpend.getText().toString().trim();
         if (!TextUtils.isEmpty(spendText)) {
             try {
                 double spend = Double.parseDouble(spendText);
                 if (spend < 0) {
-                    binding.layoutSpend.setError("Amount cannot be negative");
+                    binding.editSpend.setError("Amount cannot be negative");
                     isValid = false;
                 } else {
-                    binding.layoutSpend.setError(null);
+                    binding.editSpend.setError(null);
                 }
             } catch (NumberFormatException e) {
-                binding.layoutSpend.setError("Invalid amount format");
+                binding.editSpend.setError("Invalid amount format");
                 isValid = false;
             }
         }
@@ -318,83 +274,45 @@ public class EditWatchedFragment extends Fragment {
     }
 
     private WatchedEntry createUpdatedEntry() {
-        // Create a new entry with the same ID but updated data
+        String title = binding.editTitle.getText().toString().trim();
+        String genre = binding.editGenre.getText().toString().trim();
+        String notes = binding.editNotes.getText().toString().trim();
+        String companions = binding.editCompanions.getText().toString().trim();
+
         WatchedEntry updatedEntry = new WatchedEntry(
-            binding.editTitle.getText().toString().trim(),
-            dateFormat.format(selectedDate.getTime()),
-            getSelectedLocationType().name(),
-            getSelectedTimeOfDay().name()
+                title,
+                dateFormat.format(selectedDate.getTime()),
+                LocationType.values()[binding.spinnerLocation.getSelectedItemPosition()].name(),
+                TimeOfDay.values()[binding.spinnerTime.getSelectedItemPosition()].name()
         );
-        
-        updatedEntry.id = entryToEdit.id; // Keep the same ID
+
+        // Set the original ID
+        updatedEntry.id = entryToEdit.id;
 
         // Set optional fields
+        if (!TextUtils.isEmpty(genre)) updatedEntry.genre = genre;
+        if (!TextUtils.isEmpty(notes)) updatedEntry.notes = notes;
+        if (!TextUtils.isEmpty(companions)) updatedEntry.companions = companions;
+
+        // Parse rating
         String ratingText = binding.editRating.getText().toString().trim();
         if (!TextUtils.isEmpty(ratingText)) {
             updatedEntry.rating = Integer.parseInt(ratingText);
         }
 
+        // Parse spend
+        String spendText = binding.editSpend.getText().toString().trim();
+        if (!TextUtils.isEmpty(spendText)) {
+            double spend = Double.parseDouble(spendText);
+            updatedEntry.spendCents = (int) (spend * 100);
+        }
+
+        // Parse duration
         String durationText = binding.editDuration.getText().toString().trim();
         if (!TextUtils.isEmpty(durationText)) {
             updatedEntry.durationMin = Integer.parseInt(durationText);
         }
 
-        String spendText = binding.editSpend.getText().toString().trim();
-        if (!TextUtils.isEmpty(spendText)) {
-            double spend = Double.parseDouble(spendText);
-            updatedEntry.spendCents = (int) Math.round(spend * 100);
-        }
-
-        String genre = binding.editGenre.getText().toString().trim();
-        if (!TextUtils.isEmpty(genre)) {
-            updatedEntry.genre = genre;
-        }
-
-        String companions = binding.editCompanions.getText().toString().trim();
-        if (!TextUtils.isEmpty(companions)) {
-            updatedEntry.companions = companions;
-        }
-
-        String locationNotes = binding.editLocationNotes.getText().toString().trim();
-        if (!TextUtils.isEmpty(locationNotes)) {
-            updatedEntry.locationNotes = locationNotes;
-        }
-
-        String notes = binding.editNotes.getText().toString().trim();
-        if (!TextUtils.isEmpty(notes)) {
-            updatedEntry.notes = notes;
-        }
-
         return updatedEntry;
-    }
-
-    private LocationType getSelectedLocationType() {
-        if (binding.chipHome.isChecked()) {
-            return LocationType.HOME;
-        } else if (binding.chipFriends.isChecked()) {
-            return LocationType.FRIENDS_HOME;
-        } else if (binding.chipOther.isChecked()) {
-            return LocationType.OTHER;
-        } else {
-            return LocationType.THEATER;
-        }
-    }
-
-    private TimeOfDay getSelectedTimeOfDay() {
-        if (binding.chipMorning.isChecked()) {
-            return TimeOfDay.MORNING;
-        } else if (binding.chipAfternoon.isChecked()) {
-            return TimeOfDay.AFTERNOON;
-        } else if (binding.chipNight.isChecked()) {
-            return TimeOfDay.NIGHT;
-        } else {
-            return TimeOfDay.EVENING;
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 }
