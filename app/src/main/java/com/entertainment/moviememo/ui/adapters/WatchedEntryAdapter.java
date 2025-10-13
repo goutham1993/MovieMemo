@@ -101,7 +101,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             textTitle.setText(entry.title);
             
             if (entry.rating != null) {
-                textRating.setText(String.format(Locale.getDefault(), "%d/10", entry.rating));
+                textRating.setText("⭐ " + String.format(Locale.getDefault(), "%d/10", entry.rating));
                 textRating.setVisibility(View.VISIBLE);
             } else {
                 textRating.setVisibility(View.GONE);

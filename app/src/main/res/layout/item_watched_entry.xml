@@ -34,7 +34,7 @@
             android:background="@drawable/bg_rating"
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
-            android:textColor="?attr/colorOnPrimary"
+            android:textColor="?attr/colorOnPrimaryContainer"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
