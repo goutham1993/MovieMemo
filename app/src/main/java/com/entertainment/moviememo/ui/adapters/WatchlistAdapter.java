@@ -58,7 +58,7 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
 
         public WatchlistViewHolder(@NonNull View itemView) {
             super(itemView);
-            textTitle = itemView.findViewById(R.id.text_title);
+            textTitle = itemView.findViewById(R.id.text_movie_title);
             chipPriority = itemView.findViewById(R.id.chip_priority);
             textNotes = itemView.findViewById(R.id.text_notes);
             textTargetDate = itemView.findViewById(R.id.text_target_date);

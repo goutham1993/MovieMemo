@@ -25,7 +25,7 @@ import com.entertainment.moviememo.databinding.ActivityMainBinding;
 import com.entertainment.moviememo.ui.watched.WatchedListFragment;
 import com.entertainment.moviememo.ui.watched.AddWatchedFragment;
 import com.entertainment.moviememo.ui.watchlist.WatchlistFragment;
-import com.entertainment.moviememo.ui.watchlist.AddWatchlistDialog;
+import com.entertainment.moviememo.ui.watchlist.AddWatchlistFragment;
 import com.entertainment.moviememo.ui.stats.StatsFragment;
 import com.entertainment.moviememo.ui.settings.SettingsFragment;
 import com.entertainment.moviememo.ui.about.AboutFragment;
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1:
                         // Add to watchlist
-                        showAddWatchlistDialog();
+                        showAddWatchlistFragment();
                         break;
                     case 2:
                         // Stats - show settings for data management
@@ -134,9 +134,12 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    private void showAddWatchlistDialog() {
-        AddWatchlistDialog dialog = AddWatchlistDialog.newInstance();
-        dialog.show(getSupportFragmentManager(), "AddWatchlistDialog");
+    private void showAddWatchlistFragment() {
+        AddWatchlistFragment fragment = new AddWatchlistFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(android.R.id.content, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void setupMenu() {
