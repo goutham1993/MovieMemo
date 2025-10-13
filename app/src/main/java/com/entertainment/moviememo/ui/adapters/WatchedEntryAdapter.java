@@ -60,6 +60,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
         private Chip chipTime;
         private TextView textSpend;
         private TextView textDuration;
+        private TextView textCompanions;
         private TextView textNotes;
 
         public WatchedEntryViewHolder(@NonNull View itemView) {
@@ -72,6 +73,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             chipTime = itemView.findViewById(R.id.chip_time);
             textSpend = itemView.findViewById(R.id.text_spend);
             textDuration = itemView.findViewById(R.id.text_duration);
+            textCompanions = itemView.findViewById(R.id.text_companions);
             textNotes = itemView.findViewById(R.id.text_notes);
 
             itemView.setOnClickListener(v -> {
@@ -149,6 +151,14 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textSpend.setVisibility(View.VISIBLE);
             } else {
                 textSpend.setVisibility(View.GONE);
+            }
+
+            // Companions
+            if (entry.companions != null && !entry.companions.isEmpty()) {
+                textCompanions.setText("👥 with " + entry.companions);
+                textCompanions.setVisibility(View.VISIBLE);
+            } else {
+                textCompanions.setVisibility(View.GONE);
             }
 
             // Notes

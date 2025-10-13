@@ -42,6 +42,19 @@
             tools:text="9/10" />
 
         <TextView
+            android:id="@+id/text_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_rating"
+            tools:text="⏱️ 152 min"
+            tools:visibility="visible" />
+
+        <TextView
             android:id="@+id/text_watched_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -53,6 +66,20 @@
             app:layout_constraintTop_toBottomOf="@+id/text_movie_title"
             tools:text="Watched on Dec 15, 2024" />
 
+        <TextView
+            android:id="@+id/text_companions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_watched_date"
+            tools:text="👥 with Alice, Bob, and Sarah"
+            tools:visibility="visible" />
+
         <LinearLayout
             android:id="@+id/layout_chips"
             android:layout_width="0dp"
@@ -61,7 +88,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_watched_date">
+            app:layout_constraintTop_toBottomOf="@+id/text_companions">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_genre"
@@ -100,15 +127,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layout_chips">
-
-            <TextView
-                android:id="@+id/text_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="12sp"
-                tools:text="152 min" />
 
             <TextView
                 android:id="@+id/text_spend"
