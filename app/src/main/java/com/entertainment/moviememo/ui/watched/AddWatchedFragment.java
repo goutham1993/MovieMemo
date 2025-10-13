@@ -60,7 +60,7 @@ public class AddWatchedFragment extends Fragment {
         // Location spinner
         List<String> locations = new ArrayList<>();
         for (LocationType location : LocationType.values()) {
-            locations.add(location.name().replace("_", " "));
+            locations.add(location.getDisplayName());
         }
         ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, locations);
         locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -69,7 +69,7 @@ public class AddWatchedFragment extends Fragment {
         // Time spinner
         List<String> times = new ArrayList<>();
         for (TimeOfDay time : TimeOfDay.values()) {
-            times.add(time.name());
+            times.add(time.getDisplayName());
         }
         ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, times);
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
