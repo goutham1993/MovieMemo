@@ -95,13 +95,12 @@
                 style="@style/Widget.Material3.Button.TextButton" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_delete"
+                android:id="@+id/button_save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="🗑️ Delete"
-                android:textColor="?attr/colorError"
-                style="@style/Widget.Material3.Button.OutlinedButton" />
+                android:text="✅ Update"
+                style="@style/Widget.Material3.Button" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_convert_to_watched"
@@ -112,11 +111,12 @@
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_save"
+                android:id="@+id/button_delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✅ Update"
-                style="@style/Widget.Material3.Button" />
+                android:text="🗑️ Delete"
+                android:textColor="?attr/colorError"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
 
         </LinearLayout>
 

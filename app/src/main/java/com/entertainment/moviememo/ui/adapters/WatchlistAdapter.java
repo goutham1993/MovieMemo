@@ -54,6 +54,7 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
         private TextView textTitle;
         private Chip chipPriority;
         private TextView textNotes;
+        private TextView textLanguage;
         private TextView textTargetDate;
 
         public WatchlistViewHolder(@NonNull View itemView) {
@@ -61,6 +62,7 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
             textTitle = itemView.findViewById(R.id.text_movie_title);
             chipPriority = itemView.findViewById(R.id.chip_priority);
             textNotes = itemView.findViewById(R.id.text_notes);
+            textLanguage = itemView.findViewById(R.id.text_language);
             textTargetDate = itemView.findViewById(R.id.text_target_date);
 
             itemView.setOnClickListener(v -> {
@@ -102,6 +104,20 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
                 textNotes.setVisibility(View.VISIBLE);
             } else {
                 textNotes.setVisibility(View.GONE);
+            }
+
+            // Language
+            if (item.language != null && !item.language.isEmpty()) {
+                try {
+                    com.entertainment.moviememo.data.enums.Language language = com.entertainment.moviememo.data.enums.Language.fromCode(item.language);
+                    String languageDisplay = "🌐 " + language.getDisplayName();
+                    textLanguage.setText(languageDisplay);
+                    textLanguage.setVisibility(View.VISIBLE);
+                } catch (Exception e) {
+                    textLanguage.setVisibility(View.GONE);
+                }
+            } else {
+                textLanguage.setVisibility(View.GONE);
             }
 
             // Target date
