@@ -25,7 +25,7 @@
             android:id="@+id/edit_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="🎬 Movie Title"
+            android:hint="Movie Title"
             android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -40,7 +40,7 @@
             android:id="@+id/edit_notes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="💭 Notes (optional)"
+            android:hint="Notes (optional)"
             android:inputType="textMultiLine"
             android:maxLines="3" />
 
@@ -49,7 +49,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🔴 Priority"
+        android:text="Priority"
         android:textColor="?attr/colorOnSurface"
         android:textSize="16sp"
         android:layout_marginBottom="8dp" />

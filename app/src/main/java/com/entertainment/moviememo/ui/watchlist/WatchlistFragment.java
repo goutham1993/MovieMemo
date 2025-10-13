@@ -142,15 +142,15 @@ public class WatchlistFragment extends Fragment {
         viewModel.getAllWatchlist().observe(getViewLifecycleOwner(), watchlistItems -> {
             binding.progressBar.setVisibility(View.GONE);
             
-                    if (watchlistItems != null && !watchlistItems.isEmpty()) {
-                        adapter.submitList(watchlistItems);
-                        binding.textEmptyState.setVisibility(View.GONE);
-                        binding.recyclerViewWatchlist.setVisibility(View.VISIBLE);
-                    } else {
-                        adapter.submitList(new ArrayList<>());
-                        binding.textEmptyState.setVisibility(View.VISIBLE);
-                        binding.recyclerViewWatchlist.setVisibility(View.GONE);
-                    }
+            if (watchlistItems != null && !watchlistItems.isEmpty()) {
+                adapter.submitList(watchlistItems);
+                binding.textEmptyState.setVisibility(View.GONE);
+                binding.recyclerViewWatchlist.setVisibility(View.VISIBLE);
+            } else {
+                adapter.submitList(new ArrayList<>());
+                binding.textEmptyState.setVisibility(View.VISIBLE);
+                binding.recyclerViewWatchlist.setVisibility(View.GONE);
+            }
         });
     }
 
@@ -168,7 +168,7 @@ public class WatchlistFragment extends Fragment {
         }
         
         // Insert into watched entries
-        com.entertainment.moviememo.viewmodels.WatchedViewModel watchedViewModel = new com.entertainment.moviememo.viewmodels.WatchedViewModel(getActivity().getApplication());
+        com.entertainment.moviememo.viewmodels.WatchedViewModel watchedViewModel = new androidx.lifecycle.ViewModelProvider(this).get(com.entertainment.moviememo.viewmodels.WatchedViewModel.class);
         watchedViewModel.insertWatched(entry);
         
         // Remove from watchlist
