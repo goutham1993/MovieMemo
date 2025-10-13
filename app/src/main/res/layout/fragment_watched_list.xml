@@ -44,7 +44,7 @@
                 android:id="@+id/text_empty_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="No movies watched yet.\nTap the + button to add your first movie!"
+                android:text="🎬 No movies watched yet.\nTap the + button to add your first movie!"
                 android:textAlignment="center"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="16sp"

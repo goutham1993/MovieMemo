@@ -105,7 +105,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textRating.setVisibility(View.GONE);
             }
 
-            textWatchedDate.setText("Watched on " + entry.watchedDate);
+            textWatchedDate.setText("📅 Watched on " + entry.watchedDate);
 
             // Genre chip
             if (entry.genre != null && !entry.genre.isEmpty()) {
@@ -135,7 +135,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
 
             // Duration
             if (entry.durationMin != null && entry.durationMin > 0) {
-                textDuration.setText(entry.durationMin + " min");
+                textDuration.setText("⏱️ " + entry.durationMin + " min");
                 textDuration.setVisibility(View.VISIBLE);
             } else {
                 textDuration.setVisibility(View.GONE);
@@ -145,7 +145,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             if (entry.spendCents != null && entry.spendCents > 0) {
                 NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
                 String spendText = currencyFormat.format(entry.spendCents / 100.0);
-                textSpend.setText(spendText);
+                textSpend.setText("💰 " + spendText);
                 textSpend.setVisibility(View.VISIBLE);
             } else {
                 textSpend.setVisibility(View.GONE);

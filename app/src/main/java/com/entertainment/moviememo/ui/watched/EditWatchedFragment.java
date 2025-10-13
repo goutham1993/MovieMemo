@@ -241,7 +241,7 @@ public class EditWatchedFragment extends Fragment {
             WatchedEntry updatedEntry = createUpdatedEntry();
             viewModel.updateWatched(updatedEntry);
             
-            Toast.makeText(getContext(), "Movie updated successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "✅ Movie updated successfully!", Toast.LENGTH_SHORT).show();
             
             if (getActivity() != null) {
                 getActivity().onBackPressed();

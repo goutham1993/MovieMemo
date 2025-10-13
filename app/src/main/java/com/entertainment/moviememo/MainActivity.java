@@ -72,13 +72,13 @@ public class MainActivity extends AppCompatActivity {
                 (tab, position) -> {
                     switch (position) {
                         case 0:
-                            tab.setText("Watched");
+                            tab.setText("🎬 Watched");
                             break;
                         case 1:
-                            tab.setText("Watchlist");
+                            tab.setText("📝 Watchlist");
                             break;
                         case 2:
-                            tab.setText("Stats");
+                            tab.setText("📊 Stats");
                             break;
                     }
                 }).attach();

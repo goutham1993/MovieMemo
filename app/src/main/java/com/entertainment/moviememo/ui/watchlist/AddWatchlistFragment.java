@@ -62,7 +62,7 @@ public class AddWatchlistFragment extends Fragment {
         item.priority = priority;
 
         viewModel.insertWatchlist(item);
-        Toast.makeText(getContext(), "Added to watchlist!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "📝 Added to watchlist!", Toast.LENGTH_SHORT).show();
         getParentFragmentManager().popBackStack();
     }
 }
