@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- MovieMemo Brand Colors -->
+    <color name="movie_memo_primary">#FF6B35</color>
+    <color name="movie_memo_primary_variant">#E55A2B</color>
+    <color name="movie_memo_secondary">#4A90E2</color>
+    <color name="movie_memo_secondary_variant">#357ABD</color>
+    
+    <!-- Light Theme Colors -->
+    <color name="light_primary">#FF6B35</color>
+    <color name="light_on_primary">#FFFFFF</color>
+    <color name="light_primary_container">#FFE5D4</color>
+    <color name="light_on_primary_container">#8B1F00</color>
+    <color name="light_secondary">#4A90E2</color>
+    <color name="light_on_secondary">#FFFFFF</color>
+    <color name="light_secondary_container">#D6E3FF</color>
+    <color name="light_on_secondary_container">#001D36</color>
+    <color name="light_tertiary">#7C5800</color>
+    <color name="light_on_tertiary">#FFFFFF</color>
+    <color name="light_tertiary_container">#FFDEA6</color>
+    <color name="light_on_tertiary_container">#251A00</color>
+    <color name="light_error">#BA1A1A</color>
+    <color name="light_error_container">#FFDAD6</color>
+    <color name="light_on_error">#FFFFFF</color>
+    <color name="light_on_error_container">#410002</color>
+    <color name="light_background">#FFFBF7</color>
+    <color name="light_on_background">#1C1B16</color>
+    <color name="light_surface">#FFFBF7</color>
+    <color name="light_on_surface">#1C1B16</color>
+    <color name="light_surface_variant">#F4E0D0</color>
+    <color name="light_on_surface_variant">#52443A</color>
+    <color name="light_outline">#85736A</color>
+    <color name="light_inverse_on_surface">#F6F0E7</color>
+    <color name="light_inverse_surface">#31302C</color>
+    <color name="light_inverse_primary">#FFB59B</color>
+    <color name="light_surface_tint">#FF6B35</color>
+    <color name="light_outline_variant">#D8C4B8</color>
+    <color name="light_scrim">#000000</color>
+    
+    <!-- Dark Theme Colors -->
+    <color name="dark_primary">#FFB59B</color>
+    <color name="dark_on_primary">#5D1600</color>
+    <color name="dark_primary_container">#8B1F00</color>
+    <color name="dark_on_primary_container">#FFE5D4</color>
+    <color name="dark_secondary">#AAC7FF</color>
+    <color name="dark_on_secondary">#003258</color>
+    <color name="dark_secondary_container">#004A7E</color>
+    <color name="dark_on_secondary_container">#D6E3FF</color>
+    <color name="dark_tertiary">#E0C248</color>
+    <color name="dark_on_tertiary">#3E2E00</color>
+    <color name="dark_tertiary_container">#5A4200</color>
+    <color name="dark_on_tertiary_container">#FFDEA6</color>
+    <color name="dark_error">#FFB4AB</color>
+    <color name="dark_error_container">#93000A</color>
+    <color name="dark_on_error">#690005</color>
+    <color name="dark_on_error_container">#FFDAD6</color>
+    <color name="dark_background">#14120E</color>
+    <color name="dark_on_background">#E6E1D9</color>
+    <color name="dark_surface">#14120E</color>
+    <color name="dark_on_surface">#E6E1D9</color>
+    <color name="dark_surface_variant">#52443A</color>
+    <color name="dark_on_surface_variant">#D8C4B8</color>
+    <color name="dark_outline">#A08D82</color>
+    <color name="dark_inverse_on_surface">#14120E</color>
+    <color name="dark_inverse_surface">#E6E1D9</color>
+    <color name="dark_inverse_primary">#FF6B35</color>
+    <color name="dark_surface_tint">#FFB59B</color>
+    <color name="dark_outline_variant">#52443A</color>
+    <color name="dark_scrim">#000000</color>
+</resources>

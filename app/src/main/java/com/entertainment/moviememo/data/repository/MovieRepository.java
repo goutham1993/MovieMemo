@@ -1,0 +1,121 @@
+package com.entertainment.moviememo.data.repository;
+
+import android.content.Context;
+
+import androidx.lifecycle.LiveData;
+
+import com.entertainment.moviememo.data.database.AppDatabase;
+import com.entertainment.moviememo.data.dao.MovieDao;
+import com.entertainment.moviememo.data.entities.WatchedEntry;
+import com.entertainment.moviememo.data.entities.WatchlistItem;
+import com.entertainment.moviememo.data.entities.Genre;
+import com.entertainment.moviememo.data.entities.MonthCount;
+import com.entertainment.moviememo.data.entities.KeyCount;
+import com.entertainment.moviememo.data.entities.KeySum;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class MovieRepository {
+    
+    private MovieDao movieDao;
+    private ExecutorService executor;
+    
+    public MovieRepository(Context context) {
+        AppDatabase database = AppDatabase.getDatabase(context);
+        this.movieDao = database.movieDao();
+        this.executor = Executors.newFixedThreadPool(4);
+    }
+    
+    // Watched Entries
+    public void insertWatched(WatchedEntry entry) {
+        executor.execute(() -> movieDao.insertWatched(entry));
+    }
+    
+    public void updateWatched(WatchedEntry entry) {
+        executor.execute(() -> movieDao.updateWatched(entry));
+    }
+    
+    public void deleteWatched(WatchedEntry entry) {
+        executor.execute(() -> movieDao.deleteWatched(entry));
+    }
+    
+    public LiveData<List<WatchedEntry>> getAllWatched() {
+        return movieDao.listWatched();
+    }
+    
+    public LiveData<List<WatchedEntry>> searchWatched(String query) {
+        return movieDao.searchWatched("%" + query + "%");
+    }
+    
+    public LiveData<Integer> getWatchedCount() {
+        return movieDao.countWatched();
+    }
+    
+    public LiveData<Double> getAverageRating() {
+        return movieDao.avgRating();
+    }
+    
+    public LiveData<Integer> getTotalSpendCents() {
+        return movieDao.totalSpendCents();
+    }
+    
+    public LiveData<List<MonthCount>> getMoviesPerMonth() {
+        return movieDao.moviesPerMonth();
+    }
+    
+    public LiveData<List<KeyCount>> getTopTimeOfDay() {
+        return movieDao.topTimeOfDay();
+    }
+    
+    public LiveData<List<KeyCount>> getTopGenres() {
+        return movieDao.topGenres();
+    }
+    
+    public LiveData<List<KeySum>> getSpendByLocation() {
+        return movieDao.spendByLocation();
+    }
+    
+    // Watchlist Items
+    public void insertWatchlist(WatchlistItem item) {
+        executor.execute(() -> movieDao.insertWatchlist(item));
+    }
+    
+    public void updateWatchlist(WatchlistItem item) {
+        executor.execute(() -> movieDao.updateWatchlist(item));
+    }
+    
+    public void deleteWatchlist(WatchlistItem item) {
+        executor.execute(() -> movieDao.deleteWatchlist(item));
+    }
+    
+    public LiveData<List<WatchlistItem>> getAllWatchlist() {
+        return movieDao.listWatchlist();
+    }
+    
+    public LiveData<List<WatchlistItem>> searchWatchlist(String query) {
+        return movieDao.searchWatchlist("%" + query + "%");
+    }
+    
+    // Genres
+    public void addGenre(Genre genre) {
+        executor.execute(() -> movieDao.addGenre(genre));
+    }
+    
+    public LiveData<List<Genre>> getAllGenres() {
+        return movieDao.listGenres();
+    }
+    
+    public LiveData<Integer> getGenreCount() {
+        return movieDao.countGenres();
+    }
+
+    public void clearAllWatched() {
+        executor.execute(() -> movieDao.clearAllWatched());
+    }
+
+    public void clearAllWatchlist() {
+        executor.execute(() -> movieDao.clearAllWatchlist());
+    }
+}
