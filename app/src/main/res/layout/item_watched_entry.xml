@@ -80,6 +80,20 @@
             tools:text="👥 with Alice, Bob, and Sarah"
             tools:visibility="visible" />
 
+        <TextView
+            android:id="@+id/text_language"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_companions"
+            tools:text="🌐 English"
+            tools:visibility="visible" />
+
         <LinearLayout
             android:id="@+id/layout_chips"
             android:layout_width="0dp"
@@ -88,7 +102,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_companions">
+            app:layout_constraintTop_toBottomOf="@+id/text_language">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_genre"

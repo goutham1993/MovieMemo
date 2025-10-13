@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.data.entities.WatchedEntry;
+import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.data.enums.LocationType;
 import com.entertainment.moviememo.data.enums.TimeOfDay;
 import com.entertainment.moviememo.databinding.FragmentEditWatchedBinding;
@@ -97,6 +98,15 @@ public class EditWatchedFragment extends Fragment {
         ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, times);
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerTime.setAdapter(timeAdapter);
+
+        // Language spinner
+        List<String> languages = new ArrayList<>();
+        for (Language language : Language.values()) {
+            languages.add(language.getDisplayName());
+        }
+        ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, languages);
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerLanguage.setAdapter(languageAdapter);
     }
 
     private void populateForm() {
@@ -161,6 +171,15 @@ public class EditWatchedFragment extends Fragment {
         // Notes
         if (entryToEdit.notes != null) {
             binding.editNotes.setText(entryToEdit.notes);
+        }
+
+        // Language
+        if (entryToEdit.language != null) {
+            Language language = Language.fromCode(entryToEdit.language);
+            int languageIndex = language.ordinal();
+            binding.spinnerLanguage.setSelection(languageIndex);
+        } else {
+            binding.spinnerLanguage.setSelection(0); // Default to English
         }
     }
 
@@ -293,6 +312,9 @@ public class EditWatchedFragment extends Fragment {
         if (!TextUtils.isEmpty(genre)) updatedEntry.genre = genre;
         if (!TextUtils.isEmpty(notes)) updatedEntry.notes = notes;
         if (!TextUtils.isEmpty(companions)) updatedEntry.companions = companions;
+        
+        // Set language
+        updatedEntry.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
 
         // Parse rating
         String ratingText = binding.editRating.getText().toString().trim();

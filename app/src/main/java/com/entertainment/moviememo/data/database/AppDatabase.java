@@ -15,7 +15,7 @@ import com.entertainment.moviememo.data.entities.Genre;
 
 @Database(
     entities = {WatchedEntry.class, WatchlistItem.class, Genre.class},
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -33,6 +33,7 @@ public abstract class AppDatabase extends RoomDatabase {
                         AppDatabase.class,
                         "movie_memo_database"
                     )
+                    .addMigrations(MIGRATION_1_2)
                     .addCallback(new RoomDatabase.Callback() {
                         @Override
                         public void onCreate(SupportSQLiteDatabase db) {
@@ -65,4 +66,20 @@ public abstract class AppDatabase extends RoomDatabase {
             }
         }).start();
     }
+    
+    // Migration from version 1 to 2: Add language field to both tables
+    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Add language column to watched_entries table
+            database.execSQL("ALTER TABLE watched_entries ADD COLUMN language TEXT");
+            
+            // Add language column to watchlist_items table  
+            database.execSQL("ALTER TABLE watchlist_items ADD COLUMN language TEXT");
+            
+            // Set default language to English for existing records
+            database.execSQL("UPDATE watched_entries SET language = 'en' WHERE language IS NULL");
+            database.execSQL("UPDATE watchlist_items SET language = 'en' WHERE language IS NULL");
+        }
+    };
 }

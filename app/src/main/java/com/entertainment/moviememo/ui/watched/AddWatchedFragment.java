@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.data.entities.WatchedEntry;
+import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.data.enums.LocationType;
 import com.entertainment.moviememo.data.enums.TimeOfDay;
 import com.entertainment.moviememo.databinding.FragmentAddWatchedBinding;
@@ -73,6 +74,16 @@ public class AddWatchedFragment extends Fragment {
         ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, times);
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerTime.setAdapter(timeAdapter);
+
+        // Language spinner
+        List<String> languages = new ArrayList<>();
+        for (Language language : Language.values()) {
+            languages.add(language.getDisplayName());
+        }
+        ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, languages);
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerLanguage.setAdapter(languageAdapter);
+        binding.spinnerLanguage.setSelection(0); // Default to English
     }
 
     private void setupClickListeners() {
@@ -111,6 +122,9 @@ public class AddWatchedFragment extends Fragment {
         if (!TextUtils.isEmpty(genre)) entry.genre = genre;
         if (!TextUtils.isEmpty(notes)) entry.notes = notes;
         if (!TextUtils.isEmpty(companions)) entry.companions = companions;
+        
+        // Set language
+        entry.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
 
         // Parse rating
         String ratingText = binding.editRating.getText().toString().trim();

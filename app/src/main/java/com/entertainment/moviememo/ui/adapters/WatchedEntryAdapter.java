@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.data.entities.WatchedEntry;
+import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.data.enums.LocationType;
 import com.entertainment.moviememo.data.enums.TimeOfDay;
 import com.google.android.material.chip.Chip;
@@ -61,6 +62,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
         private TextView textSpend;
         private TextView textDuration;
         private TextView textCompanions;
+        private TextView textLanguage;
         private TextView textNotes;
 
         public WatchedEntryViewHolder(@NonNull View itemView) {
@@ -74,6 +76,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             textSpend = itemView.findViewById(R.id.text_spend);
             textDuration = itemView.findViewById(R.id.text_duration);
             textCompanions = itemView.findViewById(R.id.text_companions);
+            textLanguage = itemView.findViewById(R.id.text_language);
             textNotes = itemView.findViewById(R.id.text_notes);
 
             itemView.setOnClickListener(v -> {
@@ -159,6 +162,20 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textCompanions.setVisibility(View.VISIBLE);
             } else {
                 textCompanions.setVisibility(View.GONE);
+            }
+
+            // Language
+            if (entry.language != null && !entry.language.isEmpty()) {
+                try {
+                    Language language = Language.fromCode(entry.language);
+                    String languageDisplay = "🌐 " + language.getDisplayName();
+                    textLanguage.setText(languageDisplay);
+                    textLanguage.setVisibility(View.VISIBLE);
+                } catch (Exception e) {
+                    textLanguage.setVisibility(View.GONE);
+                }
+            } else {
+                textLanguage.setVisibility(View.GONE);
             }
 
             // Notes

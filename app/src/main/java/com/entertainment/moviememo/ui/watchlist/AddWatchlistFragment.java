@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.data.entities.WatchlistItem;
+import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.databinding.FragmentAddWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
 
@@ -40,11 +41,22 @@ public class AddWatchlistFragment extends Fragment {
     }
 
     private void setupSpinner() {
+        // Priority spinner
         String[] priorities = {"Low", "Medium", "High"};
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, priorities);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spinnerPriority.setAdapter(adapter);
+        android.widget.ArrayAdapter<String> priorityAdapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, priorities);
+        priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerPriority.setAdapter(priorityAdapter);
         binding.spinnerPriority.setSelection(1); // Default to Medium
+
+        // Language spinner
+        String[] languages = new String[Language.values().length];
+        for (int i = 0; i < Language.values().length; i++) {
+            languages[i] = Language.values()[i].getDisplayName();
+        }
+        android.widget.ArrayAdapter<String> languageAdapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, languages);
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerLanguage.setAdapter(languageAdapter);
+        binding.spinnerLanguage.setSelection(0); // Default to English
     }
 
     private void saveWatchlistItem() {
@@ -60,6 +72,7 @@ public class AddWatchlistFragment extends Fragment {
         WatchlistItem item = new WatchlistItem(title);
         item.notes = notes.isEmpty() ? null : notes;
         item.priority = priority;
+        item.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
 
         viewModel.insertWatchlist(item);
         Toast.makeText(getContext(), "🎫 Added to watchlist!", Toast.LENGTH_SHORT).show();

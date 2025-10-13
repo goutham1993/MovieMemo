@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.data.entities.WatchlistItem;
+import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.databinding.FragmentEditWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
 
@@ -74,13 +75,32 @@ public class EditWatchlistFragment extends Fragment {
         } else {
             binding.spinnerPriority.setSelection(1); // Default to Medium
         }
+
+        // Language
+        if (itemToEdit.language != null) {
+            Language language = Language.fromCode(itemToEdit.language);
+            int languageIndex = language.ordinal();
+            binding.spinnerLanguage.setSelection(languageIndex);
+        } else {
+            binding.spinnerLanguage.setSelection(0); // Default to English
+        }
     }
 
     private void setupSpinner() {
+        // Priority spinner
         String[] priorities = {"Low", "Medium", "High"};
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, priorities);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spinnerPriority.setAdapter(adapter);
+        android.widget.ArrayAdapter<String> priorityAdapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, priorities);
+        priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerPriority.setAdapter(priorityAdapter);
+
+        // Language spinner
+        String[] languages = new String[Language.values().length];
+        for (int i = 0; i < Language.values().length; i++) {
+            languages[i] = Language.values()[i].getDisplayName();
+        }
+        android.widget.ArrayAdapter<String> languageAdapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, languages);
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerLanguage.setAdapter(languageAdapter);
     }
 
     private void updateWatchlistItem() {
@@ -97,6 +117,7 @@ public class EditWatchlistFragment extends Fragment {
         itemToEdit.title = title;
         itemToEdit.notes = notes.isEmpty() ? null : notes;
         itemToEdit.priority = priority;
+        itemToEdit.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
 
         viewModel.updateWatchlist(itemToEdit);
         Toast.makeText(getContext(), "🎫 Watchlist item updated!", Toast.LENGTH_SHORT).show();

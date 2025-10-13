@@ -24,6 +24,8 @@ public class WatchlistItem implements Serializable {
     
     public Long targetDate;
     
+    public String language; // Language code (en, te, hi, etc.)
+    
     public WatchlistItem(@NonNull String title) {
         this.title = title;
         this.createdAt = System.currentTimeMillis();

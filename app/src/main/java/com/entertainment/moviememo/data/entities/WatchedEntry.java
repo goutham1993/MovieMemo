@@ -41,6 +41,8 @@ public class WatchedEntry implements Serializable {
     
     public String posterUri;
     
+    public String language; // Language code (en, te, hi, etc.)
+    
     public WatchedEntry(@NonNull String title, @NonNull String watchedDate, 
                        @NonNull String locationType, @NonNull String timeOfDay) {
         this.title = title;
