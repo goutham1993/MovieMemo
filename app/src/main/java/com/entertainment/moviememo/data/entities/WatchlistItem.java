@@ -5,9 +5,11 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "watchlist_items",
         indices = {@Index(value = {"title"}, unique = false)})
-public class WatchlistItem {
+public class WatchlistItem implements Serializable {
     @PrimaryKey(autoGenerate = true)
     public long id;
     

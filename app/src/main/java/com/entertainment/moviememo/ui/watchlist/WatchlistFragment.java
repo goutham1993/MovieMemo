@@ -63,8 +63,8 @@ public class WatchlistFragment extends Fragment {
         adapter.setOnItemClickListener(new WatchlistAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(com.entertainment.moviememo.data.entities.WatchlistItem item) {
-                // Convert to watched movie
-                convertToWatched(item);
+                // Edit watchlist item
+                editWatchlistItem(item);
             }
 
             @Override
@@ -175,6 +175,14 @@ public class WatchlistFragment extends Fragment {
         viewModel.deleteWatchlist(item);
         
         Toast.makeText(getContext(), "Moved to watched movies!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void editWatchlistItem(com.entertainment.moviememo.data.entities.WatchlistItem item) {
+        EditWatchlistFragment fragment = EditWatchlistFragment.newInstance(item);
+        getParentFragmentManager().beginTransaction()
+                .replace(android.R.id.content, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void showDeleteConfirmation(com.entertainment.moviememo.data.entities.WatchlistItem item) {
