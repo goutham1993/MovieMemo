@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                             tab.setText("🎬 Watched");
                             break;
                         case 1:
-                            tab.setText("📝 Watchlist");
+                            tab.setText("🎫 Watchlist");
                             break;
                         case 2:
                             tab.setText("📊 Stats");

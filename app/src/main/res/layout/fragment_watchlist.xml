@@ -44,7 +44,7 @@
                 android:id="@+id/text_empty_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📝 Your watchlist is empty.\nTap the + button to add movies you want to watch!"
+                android:text="🎫 Your watchlist is empty.\nTap the + button to add movies you want to watch!"
                 android:textAlignment="center"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="16sp"

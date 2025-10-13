@@ -99,14 +99,14 @@ public class EditWatchlistFragment extends Fragment {
         itemToEdit.priority = priority;
 
         viewModel.updateWatchlist(itemToEdit);
-        Toast.makeText(getContext(), "📝 Watchlist item updated!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "🎫 Watchlist item updated!", Toast.LENGTH_SHORT).show();
         getParentFragmentManager().popBackStack();
     }
 
     private void deleteWatchlistItem() {
         if (itemToEdit != null) {
             viewModel.deleteWatchlist(itemToEdit);
-            Toast.makeText(getContext(), "🗑️ Watchlist item deleted!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "🎫 Watchlist item deleted!", Toast.LENGTH_SHORT).show();
             getParentFragmentManager().popBackStack();
         }
     }

@@ -56,7 +56,7 @@
                 android:id="@+id/button_clear_watchlist"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📝 Clear Watchlist"
+                android:text="🎫 Clear Watchlist"
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
         </LinearLayout>

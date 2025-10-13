@@ -65,7 +65,7 @@ public class SettingsFragment extends Fragment {
                 .setMessage("Are you sure you want to delete all watchlist items? This action cannot be undone.")
                 .setPositiveButton("🗑️ Delete All", (dialog, which) -> {
                     watchlistViewModel.clearAllWatchlist();
-                    Toast.makeText(getContext(), "📝 Watchlist cleared!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "🎫 Watchlist cleared!", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
