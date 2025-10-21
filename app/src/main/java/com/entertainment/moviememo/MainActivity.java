@@ -143,7 +143,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupMenu() {
-        // This will be handled by onCreateOptionsMenu
+        // Set overflow icon tint to match theme
+        if (binding.toolbar.getOverflowIcon() != null) {
+            // Use theme-aware color that adapts to light/dark mode
+            android.content.res.TypedArray a = getTheme().obtainStyledAttributes(new int[]{com.google.android.material.R.attr.colorOnPrimary});
+            int tintColor = a.getColor(0, 0);
+            a.recycle();
+            binding.toolbar.getOverflowIcon().setTint(tintColor);
+        }
     }
 
     @Override

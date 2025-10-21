@@ -47,6 +47,13 @@
         <!-- Status Bar -->
         <item name="android:statusBarColor">@color/light_primary</item>
         <item name="android:windowLightStatusBar">false</item>
+        
+        <!-- Toolbar Theming -->
+        <item name="android:textColorPrimary">@color/light_on_primary</item>
+        <item name="android:textColorSecondary">@color/light_on_primary</item>
+        <item name="colorControlNormal">@color/light_on_primary</item>
+        <item name="colorControlActivated">@color/light_on_primary</item>
+        <item name="colorControlHighlight">@color/light_on_primary</item>
     </style>
 
     <style name="Theme.MovieMemo" parent="Base.Theme.MovieMemo" />
@@ -107,5 +114,12 @@
         <!-- Status Bar -->
         <item name="android:statusBarColor">@color/dark_primary</item>
         <item name="android:windowLightStatusBar">false</item>
+        
+        <!-- Toolbar Theming -->
+        <item name="android:textColorPrimary">@color/dark_on_primary</item>
+        <item name="android:textColorSecondary">@color/dark_on_primary</item>
+        <item name="colorControlNormal">@color/dark_on_primary</item>
+        <item name="colorControlActivated">@color/dark_on_primary</item>
+        <item name="colorControlHighlight">@color/dark_on_primary</item>
     </style>
 </resources>
