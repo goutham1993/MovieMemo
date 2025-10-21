@@ -33,9 +33,10 @@
             android:id="@+id/card_total_movies"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -43,15 +44,17 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/text_total_movies_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Movies"
+                    android:text="🎬 Total Movies"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -61,8 +64,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="24sp"
+                    android:textSize="28sp"
                     android:textStyle="bold"
+                    android:letterSpacing="0.02"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/text_total_movies_label"
                     tools:text="42" />
@@ -76,25 +80,29 @@
             android:id="@+id/card_avg_rating"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card_total_movies">
+            app:layout_constraintTop_toBottomOf="@+id/card_total_movies"
+            android:layout_marginTop="8dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/text_avg_rating_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Average Rating"
+                    android:text="⭐ Average Rating"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -104,8 +112,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="24sp"
+                    android:textSize="28sp"
                     android:textStyle="bold"
+                    android:letterSpacing="0.02"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/text_avg_rating_label"
                     tools:text="7.8" />
@@ -119,25 +128,29 @@
             android:id="@+id/card_total_spend"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card_avg_rating">
+            app:layout_constraintTop_toBottomOf="@+id/card_avg_rating"
+            android:layout_marginTop="8dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/text_total_spend_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Spent"
+                    android:text="💰 Total Spent"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -147,8 +160,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="24sp"
+                    android:textSize="28sp"
                     android:textStyle="bold"
+                    android:letterSpacing="0.02"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/text_total_spend_label"
                     tools:text="$420.50" />
@@ -162,25 +176,29 @@
             android:id="@+id/card_total_duration"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card_total_spend">
+            app:layout_constraintTop_toBottomOf="@+id/card_total_spend"
+            android:layout_marginTop="8dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/text_total_duration_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Watch Time"
+                    android:text="⏱️ Total Watch Time"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -190,8 +208,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="24sp"
+                    android:textSize="28sp"
                     android:textStyle="bold"
+                    android:letterSpacing="0.02"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/text_total_duration_label"
                     tools:text="2 days, 5 hours, 30 min" />
@@ -205,25 +224,29 @@
             android:id="@+id/card_top_genres"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card_total_duration">
+            app:layout_constraintTop_toBottomOf="@+id/card_total_duration"
+            android:layout_marginTop="8dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/text_top_genres_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Top Genres"
+                    android:text="🎭 Top Genres"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -251,20 +274,23 @@
             app:cardElevation="2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card_top_genres">
+            app:layout_constraintTop_toBottomOf="@+id/card_top_genres"
+            android:layout_marginTop="8dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/text_monthly_stats_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Movies This Year"
+                    android:text="📅 Movies This Year"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.01"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
