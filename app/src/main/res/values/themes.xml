@@ -51,6 +51,14 @@
 
     <style name="Theme.MovieMemo" parent="Base.Theme.MovieMemo" />
     
+    <!-- Custom Rounded TextInputLayout Style -->
+    <style name="Widget.Material3.TextInputLayout.OutlinedBox.Rounded" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+    </style>
+    
     <!-- Dark Theme Override -->
     <style name="Theme.MovieMemo.Dark" parent="Theme.MovieMemo">
         <!-- Primary Brand Color -->
