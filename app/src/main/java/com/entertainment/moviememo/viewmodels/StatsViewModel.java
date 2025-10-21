@@ -19,6 +19,7 @@ public class StatsViewModel extends AndroidViewModel {
     private LiveData<Integer> watchedCount;
     private LiveData<Double> averageRating;
     private LiveData<Integer> totalSpendCents;
+    private LiveData<Integer> totalDurationMinutes;
     private LiveData<List<MonthCount>> moviesPerMonth;
     private LiveData<List<KeyCount>> topTimeOfDay;
     private LiveData<List<KeyCount>> topGenres;
@@ -30,6 +31,7 @@ public class StatsViewModel extends AndroidViewModel {
         watchedCount = repository.getWatchedCount();
         averageRating = repository.getAverageRating();
         totalSpendCents = repository.getTotalSpendCents();
+        totalDurationMinutes = repository.getTotalDurationMinutes();
         moviesPerMonth = repository.getMoviesPerMonth();
         topTimeOfDay = repository.getTopTimeOfDay();
         topGenres = repository.getTopGenres();
@@ -46,6 +48,10 @@ public class StatsViewModel extends AndroidViewModel {
     
     public LiveData<Integer> getTotalSpendCents() {
         return totalSpendCents;
+    }
+    
+    public LiveData<Integer> getTotalDurationMinutes() {
+        return totalDurationMinutes;
     }
     
     public LiveData<List<MonthCount>> getMoviesPerMonth() {

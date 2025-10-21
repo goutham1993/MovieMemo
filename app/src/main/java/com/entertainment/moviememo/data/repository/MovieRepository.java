@@ -61,6 +61,10 @@ public class MovieRepository {
         return movieDao.totalSpendCents();
     }
     
+    public LiveData<Integer> getTotalDurationMinutes() {
+        return movieDao.totalDurationMinutes();
+    }
+    
     public LiveData<List<MonthCount>> getMoviesPerMonth() {
         return movieDao.moviesPerMonth();
     }

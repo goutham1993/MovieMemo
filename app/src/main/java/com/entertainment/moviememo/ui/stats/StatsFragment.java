@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.databinding.FragmentStatsBinding;
 import com.entertainment.moviememo.viewmodels.StatsViewModel;
+import com.entertainment.moviememo.utils.DurationUtils;
 
 public class StatsFragment extends Fragment {
 
@@ -56,6 +57,13 @@ public class StatsFragment extends Fragment {
             if (spendCents != null && binding.textTotalSpendValue != null) {
                 String spendText = String.format("$%.2f", spendCents / 100.0);
                 binding.textTotalSpendValue.setText(spendText);
+            }
+        });
+
+        viewModel.getTotalDurationMinutes().observe(getViewLifecycleOwner(), totalMinutes -> {
+            if (totalMinutes != null && binding.textTotalDurationValue != null) {
+                String durationText = DurationUtils.formatDurationComprehensive(totalMinutes);
+                binding.textTotalDurationValue.setText(durationText);
             }
         });
 

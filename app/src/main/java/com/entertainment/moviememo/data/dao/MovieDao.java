@@ -45,6 +45,9 @@ public interface MovieDao {
     @Query("SELECT IFNULL(SUM(spendCents),0) FROM watched_entries")
     LiveData<Integer> totalSpendCents();
     
+    @Query("SELECT IFNULL(SUM(durationMin),0) FROM watched_entries WHERE durationMin IS NOT NULL")
+    LiveData<Integer> totalDurationMinutes();
+    
     @Query("SELECT substr(watchedDate,1,7) AS ym, COUNT(*) AS cnt FROM watched_entries GROUP BY ym ORDER BY ym DESC")
     LiveData<List<MonthCount>> moviesPerMonth();
     
