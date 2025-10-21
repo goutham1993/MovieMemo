@@ -12,13 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.entertainment.moviememo.databinding.FragmentWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
 import com.entertainment.moviememo.ui.adapters.WatchlistAdapter;
-import com.entertainment.moviememo.ui.adapters.SwipeToDeleteCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,20 +71,8 @@ public class WatchlistFragment extends Fragment {
             }
         });
         
-        // Set up swipe to delete
-        SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback() {
-            @Override
-            public void onSwiped(@NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                if (position >= 0 && position < adapter.getItemCount()) {
-                    com.entertainment.moviememo.data.entities.WatchlistItem item = adapter.getCurrentList().get(position);
-                    showDeleteConfirmation(item);
-                }
-            }
-        };
-        
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeToDeleteCallback);
-        itemTouchHelper.attachToRecyclerView(binding.recyclerViewWatchlist);
+        // Swipe actions removed to prevent conflicts with tab swipes
+        // Users can still delete items via long-click
     }
 
     private void setupSearch() {
