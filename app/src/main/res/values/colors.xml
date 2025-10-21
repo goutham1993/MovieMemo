@@ -70,4 +70,10 @@
     <color name="dark_surface_tint">#FFB59B</color>
     <color name="dark_outline_variant">#52443A</color>
     <color name="dark_scrim">#000000</color>
+    
+    <!-- Popup Menu Colors -->
+    <color name="light_popup_background">#FF6B35</color>
+    <color name="light_popup_text">#FFFFFF</color>
+    <color name="dark_popup_background">#2C2C2C</color>
+    <color name="dark_popup_text">#FFFFFF</color>
 </resources>

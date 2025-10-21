@@ -54,6 +54,14 @@
         <item name="colorControlNormal">@color/light_on_primary</item>
         <item name="colorControlActivated">@color/light_on_primary</item>
         <item name="colorControlHighlight">@color/light_on_primary</item>
+        
+        <!-- Popup Menu Theming -->
+        <item name="android:popupMenuStyle">@style/PopupMenu.MovieMemo</item>
+        <item name="android:actionOverflowMenuStyle">@style/PopupMenu.MovieMemo</item>
+        
+        <!-- FAB Theming -->
+        <item name="colorSecondary">@color/light_primary</item>
+        <item name="colorOnSecondary">@color/light_on_primary</item>
     </style>
 
     <style name="Theme.MovieMemo" parent="Base.Theme.MovieMemo" />
@@ -64,6 +72,36 @@
         <item name="boxCornerRadiusTopEnd">16dp</item>
         <item name="boxCornerRadiusBottomStart">16dp</item>
         <item name="boxCornerRadiusBottomEnd">16dp</item>
+    </style>
+    
+    <!-- Custom Popup Menu Style -->
+    <style name="PopupMenu.MovieMemo" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@color/light_popup_background</item>
+        <item name="android:textColor">@color/light_popup_text</item>
+        <item name="android:itemTextAppearance">@style/PopupMenuText.MovieMemo</item>
+    </style>
+    
+    <!-- Popup Menu Text Style -->
+    <style name="PopupMenuText.MovieMemo" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/light_popup_text</item>
+    </style>
+    
+    <!-- Dark Theme Popup Menu Style -->
+    <style name="PopupMenu.MovieMemo.Dark" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@color/dark_popup_background</item>
+        <item name="android:textColor">@color/dark_popup_text</item>
+        <item name="android:itemTextAppearance">@style/PopupMenuText.MovieMemo.Dark</item>
+    </style>
+    
+    <!-- Dark Theme Popup Menu Text Style -->
+    <style name="PopupMenuText.MovieMemo.Dark" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/dark_popup_text</item>
+    </style>
+    
+    <!-- Custom FAB Style for Light Theme -->
+    <style name="Widget.Material3.FloatingActionButton.Orange" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@color/light_primary</item>
+        <item name="tint">@color/light_on_primary</item>
     </style>
     
     <!-- Dark Theme Override -->
@@ -121,5 +159,9 @@
         <item name="colorControlNormal">@color/dark_on_primary</item>
         <item name="colorControlActivated">@color/dark_on_primary</item>
         <item name="colorControlHighlight">@color/dark_on_primary</item>
+        
+        <!-- Popup Menu Theming -->
+        <item name="android:popupMenuStyle">@style/PopupMenu.MovieMemo.Dark</item>
+        <item name="android:actionOverflowMenuStyle">@style/PopupMenu.MovieMemo.Dark</item>
     </style>
 </resources>
