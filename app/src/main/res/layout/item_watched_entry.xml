@@ -5,23 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:strokeWidth="0dp">
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="?attr/colorSurface">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/text_movie_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
+            android:letterSpacing="0.02"
             app:layout_constraintEnd_toStartOf="@+id/text_rating"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -32,11 +34,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_rating"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
             android:textColor="?attr/colorOnPrimaryContainer"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:letterSpacing="0.01"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="9/10" />
@@ -45,7 +48,7 @@
             android:id="@+id/text_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="12sp"
             android:visibility="gone"
@@ -58,7 +61,7 @@
             android:id="@+id/text_watched_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +73,7 @@
             android:id="@+id/text_companions"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"
             android:visibility="gone"
@@ -84,7 +87,7 @@
             android:id="@+id/text_language"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"
             android:visibility="gone"
@@ -109,8 +112,9 @@
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="6dp"
                 android:textSize="12sp"
+                app:chipCornerRadius="12dp"
                 tools:text="Action" />
 
             <com.google.android.material.chip.Chip
@@ -118,8 +122,9 @@
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="6dp"
                 android:textSize="12sp"
+                app:chipCornerRadius="12dp"
                 tools:text="Theater" />
 
             <com.google.android.material.chip.Chip
@@ -128,6 +133,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
+                app:chipCornerRadius="12dp"
                 tools:text="Evening" />
 
         </LinearLayout>
