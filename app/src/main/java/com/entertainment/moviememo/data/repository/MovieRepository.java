@@ -123,6 +123,14 @@ public class MovieRepository {
         return movieDao.moviesByCompanion();
     }
     
+    public LiveData<Integer> getThisMonthCount() {
+        return movieDao.thisMonthCount();
+    }
+    
+    public LiveData<Integer> getThisMonthSpendCents() {
+        return movieDao.thisMonthSpendCents();
+    }
+    
     // Watchlist Items
     public void insertWatchlist(WatchlistItem item) {
         executor.execute(() -> movieDao.insertWatchlist(item));

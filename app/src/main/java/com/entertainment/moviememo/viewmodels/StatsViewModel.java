@@ -27,6 +27,8 @@ public class StatsViewModel extends AndroidViewModel {
     private LiveData<List<KeyCount>> moviesByLocation;
     private LiveData<List<KeyCount>> moviesByLanguage;
     private LiveData<List<KeyCount>> moviesByCompanion;
+    private LiveData<Integer> thisMonthCount;
+    private LiveData<Integer> thisMonthSpendCents;
     
     public StatsViewModel(@NonNull Application application) {
         super(application);
@@ -42,6 +44,8 @@ public class StatsViewModel extends AndroidViewModel {
         moviesByLocation = repository.getMoviesByLocation();
         moviesByLanguage = repository.getMoviesByLanguage();
         moviesByCompanion = repository.getMoviesByCompanion();
+        thisMonthCount = repository.getThisMonthCount();
+        thisMonthSpendCents = repository.getThisMonthSpendCents();
     }
     
     public LiveData<Integer> getWatchedCount() {
@@ -86,5 +90,13 @@ public class StatsViewModel extends AndroidViewModel {
     
     public LiveData<List<KeyCount>> getMoviesByCompanion() {
         return moviesByCompanion;
+    }
+    
+    public LiveData<Integer> getThisMonthCount() {
+        return thisMonthCount;
+    }
+    
+    public LiveData<Integer> getThisMonthSpendCents() {
+        return thisMonthSpendCents;
     }
 }

@@ -92,6 +92,12 @@ public interface MovieDao {
     @Query("SELECT companions AS category, COUNT(*) AS cnt FROM watched_entries WHERE companions IS NOT NULL AND companions != '' GROUP BY companions ORDER BY cnt DESC")
     LiveData<List<KeyCount>> moviesByCompanion();
     
+    @Query("SELECT COUNT(*) FROM watched_entries WHERE substr(watchedDate,1,7) = substr(date('now'),1,7)")
+    LiveData<Integer> thisMonthCount();
+    
+    @Query("SELECT IFNULL(SUM(spendCents),0) FROM watched_entries WHERE substr(watchedDate,1,7) = substr(date('now'),1,7)")
+    LiveData<Integer> thisMonthSpendCents();
+    
     // Watchlist Items
     @Insert
     long insertWatchlist(WatchlistItem item);

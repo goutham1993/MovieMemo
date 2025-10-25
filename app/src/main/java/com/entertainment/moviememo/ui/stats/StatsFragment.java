@@ -90,18 +90,21 @@ public class StatsFragment extends Fragment {
             binding.progressBar.setVisibility(View.VISIBLE);
         }
 
+        // Total movies count
         viewModel.getWatchedCount().observe(getViewLifecycleOwner(), count -> {
             if (count != null && binding.textTotalMoviesValue != null) {
                 binding.textTotalMoviesValue.setText(String.valueOf(count));
             }
         });
 
-        viewModel.getAverageRating().observe(getViewLifecycleOwner(), rating -> {
-            if (rating != null && binding.textAvgRatingValue != null) {
-                binding.textAvgRatingValue.setText(String.format("%.1f ⭐", rating));
+        // This month movies count
+        viewModel.getThisMonthCount().observe(getViewLifecycleOwner(), count -> {
+            if (count != null && binding.textThisMonthMoviesValue != null) {
+                binding.textThisMonthMoviesValue.setText(String.valueOf(count));
             }
         });
 
+        // Total spend
         viewModel.getTotalSpendCents().observe(getViewLifecycleOwner(), spendCents -> {
             if (spendCents != null && binding.textTotalSpendValue != null) {
                 String spendText = String.format("$%.2f", spendCents / 100.0);
@@ -109,10 +112,33 @@ public class StatsFragment extends Fragment {
             }
         });
 
+        // This month spend
+        viewModel.getThisMonthSpendCents().observe(getViewLifecycleOwner(), spendCents -> {
+            if (spendCents != null && binding.textThisMonthSpendValue != null) {
+                String spendText = String.format("$%.2f", spendCents / 100.0);
+                binding.textThisMonthSpendValue.setText(spendText);
+            }
+        });
+
+        // Watch time in different units
         viewModel.getTotalDurationMinutes().observe(getViewLifecycleOwner(), totalMinutes -> {
-            if (totalMinutes != null && binding.textTotalDurationValue != null) {
-                String durationText = DurationUtils.formatDurationComprehensive(totalMinutes);
-                binding.textTotalDurationValue.setText(durationText);
+            if (totalMinutes != null) {
+                // Total minutes
+                if (binding.textTotalMinutesValue != null) {
+                    binding.textTotalMinutesValue.setText(String.format("%,d", totalMinutes));
+                }
+                
+                // Total hours
+                if (binding.textTotalHoursValue != null) {
+                    double hours = totalMinutes / 60.0;
+                    binding.textTotalHoursValue.setText(String.format("%.1f", hours));
+                }
+                
+                // Total days
+                if (binding.textTotalDaysValue != null) {
+                    double days = totalMinutes / (60.0 * 24.0);
+                    binding.textTotalDaysValue.setText(String.format("%.1f", days));
+                }
             }
         });
 
