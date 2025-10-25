@@ -43,6 +43,10 @@ public class WatchedEntry implements Serializable {
     
     public String language; // Language code (en, te, hi, etc.)
     
+    public String theaterName; // Theater name when location is THEATER
+    
+    public String city; // City when location is THEATER
+    
     public WatchedEntry(@NonNull String title, @NonNull String watchedDate, 
                        @NonNull String locationType, @NonNull String timeOfDay) {
         this.title = title;

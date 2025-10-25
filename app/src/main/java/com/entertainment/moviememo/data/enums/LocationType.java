@@ -1,8 +1,8 @@
 package com.entertainment.moviememo.data.enums;
 
 public enum LocationType {
-    THEATER("Theater"),
     HOME("Home"),
+    THEATER("Theater"),
     FRIENDS_HOME("Friend's Home"),
     OTHER("Other");
     

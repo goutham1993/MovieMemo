@@ -65,6 +65,7 @@ public class EditWatchedFragment extends Fragment {
         loadEntryData();
         setupClickListeners();
         setupCompanionsAutocomplete();
+        setupLocationSpinnerListener();
     }
 
     private void setupViewModel() {
@@ -109,6 +110,25 @@ public class EditWatchedFragment extends Fragment {
         ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, languages);
         languageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerLanguage.setAdapter(languageAdapter);
+    }
+
+    private void setupLocationSpinnerListener() {
+        binding.spinnerLocation.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                LocationType selectedLocation = LocationType.values()[position];
+                if (selectedLocation == LocationType.THEATER) {
+                    binding.layoutTheaterFields.setVisibility(View.VISIBLE);
+                } else {
+                    binding.layoutTheaterFields.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                binding.layoutTheaterFields.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void setupCompanionsAutocomplete() {
@@ -165,6 +185,19 @@ public class EditWatchedFragment extends Fragment {
             LocationType locationType = LocationType.valueOf(entryToEdit.locationType);
             int locationIndex = locationType.ordinal();
             binding.spinnerLocation.setSelection(locationIndex);
+            
+            // Show/hide theater fields based on location
+            if (locationType == LocationType.THEATER) {
+                binding.layoutTheaterFields.setVisibility(View.VISIBLE);
+                if (entryToEdit.theaterName != null) {
+                    binding.editTheaterName.setText(entryToEdit.theaterName);
+                }
+                if (entryToEdit.city != null) {
+                    binding.editCity.setText(entryToEdit.city);
+                }
+            } else {
+                binding.layoutTheaterFields.setVisibility(View.GONE);
+            }
         } catch (IllegalArgumentException e) {
             binding.spinnerLocation.setSelection(0);
         }
@@ -341,6 +374,15 @@ public class EditWatchedFragment extends Fragment {
         
         // Set language
         updatedEntry.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
+        
+        // Set theater fields if location is THEATER
+        LocationType selectedLocation = LocationType.values()[binding.spinnerLocation.getSelectedItemPosition()];
+        if (selectedLocation == LocationType.THEATER) {
+            String theaterName = binding.editTheaterName.getText().toString().trim();
+            String city = binding.editCity.getText().toString().trim();
+            if (!TextUtils.isEmpty(theaterName)) updatedEntry.theaterName = theaterName;
+            if (!TextUtils.isEmpty(city)) updatedEntry.city = city;
+        }
 
         // Parse rating
         String ratingText = binding.editRating.getText().toString().trim();

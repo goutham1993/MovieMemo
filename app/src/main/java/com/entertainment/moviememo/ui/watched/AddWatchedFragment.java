@@ -56,6 +56,7 @@ public class AddWatchedFragment extends Fragment {
         setupClickListeners();
         initializeDateButton();
         setupCompanionsAutocomplete();
+        setupLocationSpinnerListener();
     }
 
     private void setupSpinners() {
@@ -86,6 +87,25 @@ public class AddWatchedFragment extends Fragment {
         languageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerLanguage.setAdapter(languageAdapter);
         binding.spinnerLanguage.setSelection(0); // Default to English
+    }
+
+    private void setupLocationSpinnerListener() {
+        binding.spinnerLocation.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                LocationType selectedLocation = LocationType.values()[position];
+                if (selectedLocation == LocationType.THEATER) {
+                    binding.layoutTheaterFields.setVisibility(View.VISIBLE);
+                } else {
+                    binding.layoutTheaterFields.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                binding.layoutTheaterFields.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void setupClickListeners() {
@@ -168,6 +188,15 @@ public class AddWatchedFragment extends Fragment {
         
         // Set language
         entry.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
+        
+        // Set theater fields if location is THEATER
+        LocationType selectedLocation = LocationType.values()[binding.spinnerLocation.getSelectedItemPosition()];
+        if (selectedLocation == LocationType.THEATER) {
+            String theaterName = binding.editTheaterName.getText().toString().trim();
+            String city = binding.editCity.getText().toString().trim();
+            if (!TextUtils.isEmpty(theaterName)) entry.theaterName = theaterName;
+            if (!TextUtils.isEmpty(city)) entry.city = city;
+        }
 
         // Parse rating
         String ratingText = binding.editRating.getText().toString().trim();

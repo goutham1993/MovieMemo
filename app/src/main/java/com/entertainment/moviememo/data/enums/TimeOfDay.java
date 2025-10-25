@@ -1,10 +1,10 @@
 package com.entertainment.moviememo.data.enums;
 
 public enum TimeOfDay {
+    NIGHT("Night"),
     MORNING("Morning"),
     AFTERNOON("Afternoon"),
-    EVENING("Evening"),
-    NIGHT("Night");
+    EVENING("Evening");
     
     private final String displayName;
     
