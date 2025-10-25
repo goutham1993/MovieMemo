@@ -114,12 +114,14 @@ public class MainActivity extends AppCompatActivity {
                 switch (position) {
                     case 0:
                         binding.fab.setImageResource(android.R.drawable.ic_input_add);
+                        binding.fab.setVisibility(View.VISIBLE);
                         break;
                     case 1:
                         binding.fab.setImageResource(android.R.drawable.ic_input_add);
+                        binding.fab.setVisibility(View.VISIBLE);
                         break;
                     case 2:
-                        binding.fab.setImageResource(android.R.drawable.ic_menu_manage);
+                        binding.fab.setVisibility(View.GONE);
                         break;
                 }
             }
