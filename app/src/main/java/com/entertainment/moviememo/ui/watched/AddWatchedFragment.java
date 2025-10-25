@@ -56,6 +56,8 @@ public class AddWatchedFragment extends Fragment {
         setupClickListeners();
         initializeDateButton();
         setupCompanionsAutocomplete();
+        setupTheaterAutocomplete();
+        setupCityAutocomplete();
         setupLocationSpinnerListener();
     }
 
@@ -152,6 +154,46 @@ public class AddWatchedFragment extends Fragment {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
                 android.R.layout.simple_dropdown_item_1line, companions);
             binding.editCompanions.setAdapter(adapter);
+        });
+    }
+
+    private void setupTheaterAutocomplete() {
+        // Get all previous theater names from the database
+        viewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
+            List<String> theaters = new ArrayList<>();
+            for (WatchedEntry entry : entries) {
+                if (entry.theaterName != null && !entry.theaterName.trim().isEmpty()) {
+                    String trimmed = entry.theaterName.trim();
+                    if (!theaters.contains(trimmed)) {
+                        theaters.add(trimmed);
+                    }
+                }
+            }
+            
+            // Set up the autocomplete adapter
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                R.layout.autocomplete_item, theaters);
+            binding.editTheaterName.setAdapter(adapter);
+        });
+    }
+
+    private void setupCityAutocomplete() {
+        // Get all previous cities from the database
+        viewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
+            List<String> cities = new ArrayList<>();
+            for (WatchedEntry entry : entries) {
+                if (entry.city != null && !entry.city.trim().isEmpty()) {
+                    String trimmed = entry.city.trim();
+                    if (!cities.contains(trimmed)) {
+                        cities.add(trimmed);
+                    }
+                }
+            }
+            
+            // Set up the autocomplete adapter
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                R.layout.autocomplete_item, cities);
+            binding.editCity.setAdapter(adapter);
         });
     }
 
