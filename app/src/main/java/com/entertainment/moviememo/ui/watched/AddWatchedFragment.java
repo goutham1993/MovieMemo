@@ -54,6 +54,7 @@ public class AddWatchedFragment extends Fragment {
 
         setupSpinners();
         setupClickListeners();
+        initializeDateButton();
     }
 
     private void setupSpinners() {
@@ -101,6 +102,12 @@ public class AddWatchedFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void initializeDateButton() {
+        // Set the date button to show current date by default
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        binding.buttonDate.setText("📅 " + dateFormat.format(selectedDate.getTime()));
     }
 
     private void showDatePicker() {
