@@ -136,6 +136,20 @@ public class StatsFragment extends Fragment {
             }
         });
 
+        // Weekday count
+        viewModel.getWeekdayCount().observe(getViewLifecycleOwner(), count -> {
+            if (count != null && binding.textWeekdaysValue != null) {
+                binding.textWeekdaysValue.setText(String.valueOf(count));
+            }
+        });
+
+        // Weekend count
+        viewModel.getWeekendCount().observe(getViewLifecycleOwner(), count -> {
+            if (count != null && binding.textWeekendsValue != null) {
+                binding.textWeekendsValue.setText(String.valueOf(count));
+            }
+        });
+
         // Watch time in different units
         viewModel.getTotalDurationMinutes().observe(getViewLifecycleOwner(), totalMinutes -> {
             if (totalMinutes != null) {

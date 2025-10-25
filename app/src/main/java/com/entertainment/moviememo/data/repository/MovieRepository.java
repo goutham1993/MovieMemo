@@ -139,6 +139,14 @@ public class MovieRepository {
         return movieDao.thisMonthAvgSpendCents();
     }
     
+    public LiveData<Integer> getWeekdayCount() {
+        return movieDao.weekdayCount();
+    }
+    
+    public LiveData<Integer> getWeekendCount() {
+        return movieDao.weekendCount();
+    }
+    
     // Watchlist Items
     public void insertWatchlist(WatchlistItem item) {
         executor.execute(() -> movieDao.insertWatchlist(item));

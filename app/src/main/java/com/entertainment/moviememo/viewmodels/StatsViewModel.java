@@ -31,6 +31,8 @@ public class StatsViewModel extends AndroidViewModel {
     private LiveData<Integer> thisMonthSpendCents;
     private LiveData<Integer> avgSpendCents;
     private LiveData<Integer> thisMonthAvgSpendCents;
+    private LiveData<Integer> weekdayCount;
+    private LiveData<Integer> weekendCount;
     
     public StatsViewModel(@NonNull Application application) {
         super(application);
@@ -50,6 +52,8 @@ public class StatsViewModel extends AndroidViewModel {
         thisMonthSpendCents = repository.getThisMonthSpendCents();
         avgSpendCents = repository.getAvgSpendCents();
         thisMonthAvgSpendCents = repository.getThisMonthAvgSpendCents();
+        weekdayCount = repository.getWeekdayCount();
+        weekendCount = repository.getWeekendCount();
     }
     
     public LiveData<Integer> getWatchedCount() {
@@ -110,5 +114,13 @@ public class StatsViewModel extends AndroidViewModel {
     
     public LiveData<Integer> getThisMonthAvgSpendCents() {
         return thisMonthAvgSpendCents;
+    }
+    
+    public LiveData<Integer> getWeekdayCount() {
+        return weekdayCount;
+    }
+    
+    public LiveData<Integer> getWeekendCount() {
+        return weekendCount;
     }
 }

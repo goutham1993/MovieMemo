@@ -104,6 +104,12 @@ public interface MovieDao {
     @Query("SELECT IFNULL(AVG(spendCents),0) FROM watched_entries WHERE locationType = 'THEATER' AND substr(watchedDate,1,7) = substr(date('now'),1,7) AND spendCents IS NOT NULL")
     LiveData<Integer> thisMonthAvgSpendCents();
     
+    @Query("SELECT COUNT(*) FROM watched_entries WHERE CAST(strftime('%w', watchedDate) AS INTEGER) BETWEEN 1 AND 5")
+    LiveData<Integer> weekdayCount();
+    
+    @Query("SELECT COUNT(*) FROM watched_entries WHERE CAST(strftime('%w', watchedDate) AS INTEGER) IN (0, 6)")
+    LiveData<Integer> weekendCount();
+    
     // Watchlist Items
     @Insert
     long insertWatchlist(WatchlistItem item);
