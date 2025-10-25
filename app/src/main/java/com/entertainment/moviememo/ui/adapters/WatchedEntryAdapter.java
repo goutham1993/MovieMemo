@@ -155,7 +155,9 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             if (entry.spendCents != null && entry.spendCents > 0) {
                 NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
                 String spendText = currencyFormat.format(entry.spendCents / 100.0);
-                textSpendUnderDuration.setText(spendText);
+                // Replace $ with 💰 emoji
+                String emojiSpendText = "💰 " + spendText.replace("$", "");
+                textSpendUnderDuration.setText(emojiSpendText);
                 textSpendUnderDuration.setVisibility(View.VISIBLE);
             } else {
                 textSpendUnderDuration.setVisibility(View.GONE);
@@ -176,7 +178,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             if (entry.language != null && !entry.language.isEmpty()) {
                 try {
                     Language language = Language.fromCode(entry.language);
-                    String languageDisplay = "🌐 " + language.getDisplayName();
+                    String languageDisplay = "🌐 in " + language.getDisplayName();
                     textLanguage.setText(languageDisplay);
                     textLanguage.setVisibility(View.VISIBLE);
                 } catch (Exception e) {
@@ -196,7 +198,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
 
             // Theater info
             if (entry.theaterName != null && !entry.theaterName.isEmpty()) {
-                StringBuilder theaterInfo = new StringBuilder("📍 ");
+                StringBuilder theaterInfo = new StringBuilder("📍 at ");
                 theaterInfo.append(entry.theaterName);
                 if (entry.city != null && !entry.city.isEmpty()) {
                     theaterInfo.append(", ").append(entry.city);

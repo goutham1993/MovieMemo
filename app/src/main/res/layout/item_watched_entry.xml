@@ -144,7 +144,7 @@
             android:id="@+id/text_notes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:maxLines="2"
             android:ellipsize="end"
             android:textColor="@android:color/black"
@@ -152,7 +152,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_metadata"
+            app:layout_constraintTop_toBottomOf="@+id/text_theater_info"
             tools:text="Great movie with amazing action sequences!"
             tools:visibility="visible" />
 
@@ -160,15 +160,15 @@
             android:id="@+id/text_theater_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:textColor="@android:color/black"
             android:textSize="14sp"
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_notes"
-            tools:text="📍 AMC Theater, New York"
+            app:layout_constraintTop_toBottomOf="@+id/text_language"
+            tools:text="📍 at Cinemark, Dallas"
             tools:visibility="visible" />
 
         <LinearLayout
@@ -179,7 +179,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_theater_info">
+            app:layout_constraintTop_toBottomOf="@+id/text_notes">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_genre"
