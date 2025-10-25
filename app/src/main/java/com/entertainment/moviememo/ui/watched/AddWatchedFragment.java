@@ -63,8 +63,8 @@ public class AddWatchedFragment extends Fragment {
         for (LocationType location : LocationType.values()) {
             locations.add(location.getDisplayName());
         }
-        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, locations);
-        locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, locations);
+        locationAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerLocation.setAdapter(locationAdapter);
 
         // Time spinner
@@ -72,8 +72,8 @@ public class AddWatchedFragment extends Fragment {
         for (TimeOfDay time : TimeOfDay.values()) {
             times.add(time.getDisplayName());
         }
-        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, times);
-        timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, times);
+        timeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerTime.setAdapter(timeAdapter);
 
         // Language spinner
@@ -81,8 +81,8 @@ public class AddWatchedFragment extends Fragment {
         for (Language language : Language.values()) {
             languages.add(language.getDisplayName());
         }
-        ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, languages);
-        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, languages);
+        languageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerLanguage.setAdapter(languageAdapter);
         binding.spinnerLanguage.setSelection(0); // Default to English
     }
