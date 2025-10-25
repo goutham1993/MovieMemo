@@ -81,6 +81,19 @@ public class MovieRepository {
         return movieDao.spendByLocation();
     }
     
+    // New statistics methods
+    public LiveData<List<KeyCount>> getMoviesByLocation() {
+        return movieDao.moviesByLocation();
+    }
+    
+    public LiveData<List<KeyCount>> getMoviesByLanguage() {
+        return movieDao.moviesByLanguage();
+    }
+    
+    public LiveData<List<KeyCount>> getMoviesByCompanion() {
+        return movieDao.moviesByCompanion();
+    }
+    
     // Watchlist Items
     public void insertWatchlist(WatchlistItem item) {
         executor.execute(() -> movieDao.insertWatchlist(item));

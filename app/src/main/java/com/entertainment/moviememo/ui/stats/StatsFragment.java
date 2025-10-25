@@ -14,11 +14,26 @@ import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.databinding.FragmentStatsBinding;
 import com.entertainment.moviememo.viewmodels.StatsViewModel;
 import com.entertainment.moviememo.utils.DurationUtils;
+import com.entertainment.moviememo.ui.adapters.GenreStatsAdapter;
+import com.entertainment.moviememo.ui.adapters.MonthlyStatsAdapter;
+import com.entertainment.moviememo.data.entities.KeyCount;
+import com.entertainment.moviememo.data.entities.MonthCount;
+import com.entertainment.moviememo.data.enums.LocationType;
+import com.entertainment.moviememo.data.enums.TimeOfDay;
+
+import java.util.List;
+import java.util.ArrayList;
 
 public class StatsFragment extends Fragment {
 
     private FragmentStatsBinding binding;
     private StatsViewModel viewModel;
+    private GenreStatsAdapter genreAdapter;
+    private GenreStatsAdapter locationAdapter;
+    private GenreStatsAdapter timeAdapter;
+    private GenreStatsAdapter languageAdapter;
+    private GenreStatsAdapter companionAdapter;
+    private MonthlyStatsAdapter monthlyAdapter;
 
     @Nullable
     @Override
@@ -32,7 +47,40 @@ public class StatsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
+        setupAdapters();
         observeData();
+    }
+    
+    private void setupAdapters() {
+        // Setup genre adapter
+        genreAdapter = new GenreStatsAdapter();
+        binding.recyclerViewGenres.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext(), androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+        binding.recyclerViewGenres.setAdapter(genreAdapter);
+        
+        // Setup location adapter
+        locationAdapter = new GenreStatsAdapter();
+        binding.recyclerViewLocation.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext(), androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+        binding.recyclerViewLocation.setAdapter(locationAdapter);
+        
+        // Setup time adapter
+        timeAdapter = new GenreStatsAdapter();
+        binding.recyclerViewTime.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext(), androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+        binding.recyclerViewTime.setAdapter(timeAdapter);
+        
+        // Setup language adapter
+        languageAdapter = new GenreStatsAdapter();
+        binding.recyclerViewLanguage.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext(), androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+        binding.recyclerViewLanguage.setAdapter(languageAdapter);
+        
+        // Setup companion adapter
+        companionAdapter = new GenreStatsAdapter();
+        binding.recyclerViewCompanion.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext(), androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false));
+        binding.recyclerViewCompanion.setAdapter(companionAdapter);
+        
+        // Setup monthly adapter
+        monthlyAdapter = new MonthlyStatsAdapter();
+        binding.recyclerViewMonthly.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
+        binding.recyclerViewMonthly.setAdapter(monthlyAdapter);
     }
 
     private void observeData() {
@@ -67,9 +115,101 @@ public class StatsFragment extends Fragment {
             }
         });
 
+        // Observe genre statistics
+        viewModel.getTopGenres().observe(getViewLifecycleOwner(), genres -> {
+            if (genres != null) {
+                genreAdapter.updateGenres(genres);
+            }
+        });
+
+        // Observe location statistics
+        viewModel.getMoviesByLocation().observe(getViewLifecycleOwner(), locations -> {
+            if (locations != null) {
+                List<KeyCount> formattedLocations = new ArrayList<>();
+                for (KeyCount location : locations) {
+                    String displayName = getLocationDisplayName(location.category);
+                    formattedLocations.add(new KeyCount(displayName, location.cnt));
+                }
+                locationAdapter.updateGenres(formattedLocations);
+            }
+        });
+
+        // Observe time of day statistics
+        viewModel.getTopTimeOfDay().observe(getViewLifecycleOwner(), times -> {
+            if (times != null) {
+                List<KeyCount> formattedTimes = new ArrayList<>();
+                for (KeyCount time : times) {
+                    String displayName = getTimeDisplayName(time.category);
+                    formattedTimes.add(new KeyCount(displayName, time.cnt));
+                }
+                timeAdapter.updateGenres(formattedTimes);
+            }
+        });
+
+        // Observe language statistics
+        viewModel.getMoviesByLanguage().observe(getViewLifecycleOwner(), languages -> {
+            if (languages != null) {
+                languageAdapter.updateGenres(languages);
+            }
+        });
+
+        // Observe companion statistics
+        viewModel.getMoviesByCompanion().observe(getViewLifecycleOwner(), companions -> {
+            if (companions != null) {
+                companionAdapter.updateGenres(companions);
+            }
+        });
+
+        // Observe monthly statistics
+        viewModel.getMoviesPerMonth().observe(getViewLifecycleOwner(), months -> {
+            if (months != null) {
+                monthlyAdapter.updateMonthlyStats(months);
+            }
+        });
+
         // Hide loading when data is loaded
         if (binding.progressBar != null) {
             binding.progressBar.setVisibility(View.GONE);
+        }
+    }
+    
+    private String getLocationDisplayName(String locationType) {
+        try {
+            LocationType type = LocationType.valueOf(locationType);
+            switch (type) {
+                case HOME:
+                    return "🏠 Home";
+                case THEATER:
+                    return "🎬 Theater";
+                case FRIENDS_HOME:
+                    return "👥 Friend's Home";
+                case OTHER:
+                    return "📍 Other";
+                default:
+                    return locationType;
+            }
+        } catch (IllegalArgumentException e) {
+            return locationType;
+        }
+    }
+    
+    private String getTimeDisplayName(String timeOfDay) {
+        try {
+            TimeOfDay time = TimeOfDay.valueOf(timeOfDay);
+            switch (time) {
+                case MORNING:
+                    return "🌅 Morning";
+                case AFTERNOON:
+                    return "☀️ Afternoon";
+                case EVENING:
+                    return "🌆 Evening";
+                case NIGHT:
+                    return "🌙 Night";
+                default:
+                    return timeOfDay;
+            }
+        } catch (IllegalArgumentException e) {
+            return timeOfDay;
         }
     }
 }

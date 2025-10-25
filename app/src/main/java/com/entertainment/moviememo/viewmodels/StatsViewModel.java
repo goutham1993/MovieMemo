@@ -24,6 +24,9 @@ public class StatsViewModel extends AndroidViewModel {
     private LiveData<List<KeyCount>> topTimeOfDay;
     private LiveData<List<KeyCount>> topGenres;
     private LiveData<List<KeySum>> spendByLocation;
+    private LiveData<List<KeyCount>> moviesByLocation;
+    private LiveData<List<KeyCount>> moviesByLanguage;
+    private LiveData<List<KeyCount>> moviesByCompanion;
     
     public StatsViewModel(@NonNull Application application) {
         super(application);
@@ -36,6 +39,9 @@ public class StatsViewModel extends AndroidViewModel {
         topTimeOfDay = repository.getTopTimeOfDay();
         topGenres = repository.getTopGenres();
         spendByLocation = repository.getSpendByLocation();
+        moviesByLocation = repository.getMoviesByLocation();
+        moviesByLanguage = repository.getMoviesByLanguage();
+        moviesByCompanion = repository.getMoviesByCompanion();
     }
     
     public LiveData<Integer> getWatchedCount() {
@@ -68,5 +74,17 @@ public class StatsViewModel extends AndroidViewModel {
     
     public LiveData<List<KeySum>> getSpendByLocation() {
         return spendByLocation;
+    }
+    
+    public LiveData<List<KeyCount>> getMoviesByLocation() {
+        return moviesByLocation;
+    }
+    
+    public LiveData<List<KeyCount>> getMoviesByLanguage() {
+        return moviesByLanguage;
+    }
+    
+    public LiveData<List<KeyCount>> getMoviesByCompanion() {
+        return moviesByCompanion;
     }
 }

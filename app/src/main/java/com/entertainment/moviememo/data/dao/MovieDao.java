@@ -60,6 +60,16 @@ public interface MovieDao {
     @Query("SELECT locationType AS category, IFNULL(SUM(spendCents),0) AS total FROM watched_entries GROUP BY locationType")
     LiveData<List<KeySum>> spendByLocation();
     
+    // New statistics queries
+    @Query("SELECT locationType AS category, COUNT(*) AS cnt FROM watched_entries GROUP BY locationType ORDER BY cnt DESC")
+    LiveData<List<KeyCount>> moviesByLocation();
+    
+    @Query("SELECT language AS category, COUNT(*) AS cnt FROM watched_entries WHERE language IS NOT NULL GROUP BY language ORDER BY cnt DESC")
+    LiveData<List<KeyCount>> moviesByLanguage();
+    
+    @Query("SELECT companions AS category, COUNT(*) AS cnt FROM watched_entries WHERE companions IS NOT NULL AND companions != '' GROUP BY companions ORDER BY cnt DESC")
+    LiveData<List<KeyCount>> moviesByCompanion();
+    
     // Watchlist Items
     @Insert
     long insertWatchlist(WatchlistItem item);
