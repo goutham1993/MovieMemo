@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -63,6 +64,7 @@ public class EditWatchedFragment extends Fragment {
         setupSpinners();
         loadEntryData();
         setupClickListeners();
+        setupCompanionsAutocomplete();
     }
 
     private void setupViewModel() {
@@ -107,6 +109,30 @@ public class EditWatchedFragment extends Fragment {
         ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, languages);
         languageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         binding.spinnerLanguage.setAdapter(languageAdapter);
+    }
+
+    private void setupCompanionsAutocomplete() {
+        // Get all previous companions from the database
+        viewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
+            List<String> companions = new ArrayList<>();
+            for (WatchedEntry entry : entries) {
+                if (entry.companions != null && !entry.companions.trim().isEmpty()) {
+                    // Split companions by comma and add each one
+                    String[] companionArray = entry.companions.split(",");
+                    for (String companion : companionArray) {
+                        String trimmed = companion.trim();
+                        if (!trimmed.isEmpty() && !companions.contains(trimmed)) {
+                            companions.add(trimmed);
+                        }
+                    }
+                }
+            }
+            
+            // Set up the autocomplete adapter
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                android.R.layout.simple_dropdown_item_1line, companions);
+            binding.editCompanions.setAdapter(adapter);
+        });
     }
 
     private void populateForm() {
