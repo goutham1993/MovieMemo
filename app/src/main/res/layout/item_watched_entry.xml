@@ -119,46 +119,6 @@
             tools:text="🌐 English"
             tools:visibility="visible" />
 
-        <LinearLayout
-            android:id="@+id/layout_chips"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_language">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_genre"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                android:textSize="12sp"
-                app:chipCornerRadius="12dp"
-                tools:text="Action" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_location"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                android:textSize="12sp"
-                app:chipCornerRadius="12dp"
-                tools:text="Theater" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_time"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                app:chipCornerRadius="12dp"
-                tools:text="Evening" />
-
-        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/layout_metadata"
@@ -168,7 +128,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout_chips">
+            app:layout_constraintTop_toBottomOf="@+id/text_language">
 
             <TextView
                 android:id="@+id/text_spend"
@@ -208,8 +168,49 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_notes"
-            tools:text="🎭 AMC Theater, New York"
+            tools:text="📍 AMC Theater, New York"
             tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/layout_chips"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_theater_info">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_genre"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:textSize="12sp"
+                app:chipCornerRadius="12dp"
+                tools:text="Action" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_location"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:textSize="12sp"
+                app:chipCornerRadius="12dp"
+                tools:text="🏠 Home" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_time"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                app:chipCornerRadius="12dp"
+                tools:text="Night" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
