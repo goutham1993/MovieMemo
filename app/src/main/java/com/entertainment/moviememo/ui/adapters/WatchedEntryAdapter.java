@@ -18,6 +18,8 @@ import com.entertainment.moviememo.data.enums.TimeOfDay;
 import com.google.android.material.chip.Chip;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -114,7 +116,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textRating.setVisibility(View.GONE);
             }
 
-            textWatchedDate.setText("📅 Watched on " + entry.watchedDate);
+            textWatchedDate.setText("📅 " + formatDateWithDay(entry.watchedDate));
 
             // Genre chip
             if (entry.genre != null && !entry.genre.isEmpty()) {
@@ -225,6 +227,26 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             }
         }
 
+    }
+
+    private String formatDateWithDay(String dateString) {
+        try {
+            // Parse the date string (assuming format like "2024-12-15")
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date date = inputFormat.parse(dateString);
+            
+            if (date != null) {
+                // Format as "Monday, Dec 15, 2024"
+                SimpleDateFormat outputFormat = new SimpleDateFormat("EEEE, MMM dd, yyyy", Locale.getDefault());
+                return outputFormat.format(date);
+            }
+        } catch (Exception e) {
+            // If parsing fails, return the original date string
+            e.printStackTrace();
+        }
+        
+        // Fallback to original format if parsing fails
+        return "Watched on " + dateString;
     }
 
     private static final DiffUtil.ItemCallback<WatchedEntry> DIFF_CALLBACK = new DiffUtil.ItemCallback<WatchedEntry>() {
