@@ -20,6 +20,7 @@ import com.entertainment.moviememo.data.entities.KeyCount;
 import com.entertainment.moviememo.data.entities.MonthCount;
 import com.entertainment.moviememo.data.enums.LocationType;
 import com.entertainment.moviememo.data.enums.TimeOfDay;
+import com.entertainment.moviememo.data.enums.Language;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -149,7 +150,12 @@ public class StatsFragment extends Fragment {
         // Observe language statistics
         viewModel.getMoviesByLanguage().observe(getViewLifecycleOwner(), languages -> {
             if (languages != null) {
-                languageAdapter.updateGenres(languages);
+                List<KeyCount> formattedLanguages = new ArrayList<>();
+                for (KeyCount language : languages) {
+                    String displayName = getLanguageDisplayName(language.category);
+                    formattedLanguages.add(new KeyCount(displayName, language.cnt));
+                }
+                languageAdapter.updateGenres(formattedLanguages);
             }
         });
 
@@ -210,6 +216,15 @@ public class StatsFragment extends Fragment {
             }
         } catch (IllegalArgumentException e) {
             return timeOfDay;
+        }
+    }
+    
+    private String getLanguageDisplayName(String languageCode) {
+        try {
+            Language language = Language.fromCode(languageCode);
+            return "🌐 " + language.getDisplayName();
+        } catch (Exception e) {
+            return "🌐 " + languageCode;
         }
     }
 }
