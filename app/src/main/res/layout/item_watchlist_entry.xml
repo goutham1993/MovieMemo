@@ -24,21 +24,10 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:letterSpacing="0.02"
-            app:layout_constraintEnd_toStartOf="@+id/chip_priority"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Inception" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_priority"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            app:chipCornerRadius="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="High" />
 
         <TextView
             android:id="@+id/text_notes"

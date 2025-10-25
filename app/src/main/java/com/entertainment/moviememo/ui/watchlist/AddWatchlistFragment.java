@@ -41,13 +41,6 @@ public class AddWatchlistFragment extends Fragment {
     }
 
     private void setupSpinner() {
-        // Priority spinner
-        String[] priorities = {"Low", "Medium", "High"};
-        android.widget.ArrayAdapter<String> priorityAdapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, priorities);
-        priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spinnerPriority.setAdapter(priorityAdapter);
-        binding.spinnerPriority.setSelection(1); // Default to Medium
-
         // Language spinner
         String[] languages = new String[Language.values().length];
         for (int i = 0; i < Language.values().length; i++) {
@@ -62,7 +55,6 @@ public class AddWatchlistFragment extends Fragment {
     private void saveWatchlistItem() {
         String title = binding.editTitle.getText().toString().trim();
         String notes = binding.editNotes.getText().toString().trim();
-        int priority = binding.spinnerPriority.getSelectedItemPosition() + 1; // 1-3
 
         if (title.isEmpty()) {
             binding.editTitle.setError("Title is required");
@@ -71,7 +63,7 @@ public class AddWatchlistFragment extends Fragment {
 
         WatchlistItem item = new WatchlistItem(title);
         item.notes = notes.isEmpty() ? null : notes;
-        item.priority = priority;
+        item.priority = 2; // Default to Medium priority
         item.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
 
         viewModel.insertWatchlist(item);

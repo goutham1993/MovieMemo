@@ -52,7 +52,6 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
 
     class WatchlistViewHolder extends RecyclerView.ViewHolder {
         private TextView textTitle;
-        private Chip chipPriority;
         private TextView textNotes;
         private TextView textLanguage;
         private TextView textTargetDate;
@@ -60,7 +59,6 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
         public WatchlistViewHolder(@NonNull View itemView) {
             super(itemView);
             textTitle = itemView.findViewById(R.id.text_movie_title);
-            chipPriority = itemView.findViewById(R.id.chip_priority);
             textNotes = itemView.findViewById(R.id.text_notes);
             textLanguage = itemView.findViewById(R.id.text_language);
             textTargetDate = itemView.findViewById(R.id.text_target_date);
@@ -88,15 +86,6 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
 
         public void bind(WatchlistItem item) {
             textTitle.setText(item.title);
-
-            // Priority chip
-            if (item.priority != null) {
-                String priorityText = getPriorityText(item.priority);
-                chipPriority.setText(priorityText);
-                chipPriority.setVisibility(View.VISIBLE);
-            } else {
-                chipPriority.setVisibility(View.GONE);
-            }
 
             // Notes
             if (item.notes != null && !item.notes.isEmpty()) {
@@ -131,18 +120,6 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
             }
         }
 
-        private String getPriorityText(Integer priority) {
-            switch (priority) {
-                case 1:
-                    return "Low";
-                case 2:
-                    return "Medium";
-                case 3:
-                    return "High";
-                default:
-                    return "Medium";
-            }
-        }
 
     }
 

@@ -50,17 +50,12 @@ public class AddWatchlistDialog extends DialogFragment {
     }
 
     private void setupSpinner() {
-        String[] priorities = {"Low", "Medium", "High"};
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, priorities);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spinnerPriority.setAdapter(adapter);
-        binding.spinnerPriority.setSelection(1); // Default to Medium
+        // No spinners to setup in dialog
     }
 
     private void saveWatchlistItem() {
         String title = binding.editTitle.getText().toString().trim();
         String notes = binding.editNotes.getText().toString().trim();
-        int priority = binding.spinnerPriority.getSelectedItemPosition() + 1; // 1-3
 
         if (title.isEmpty()) {
             binding.editTitle.setError("Title is required");
@@ -69,7 +64,7 @@ public class AddWatchlistDialog extends DialogFragment {
 
         WatchlistItem item = new WatchlistItem(title);
         item.notes = notes.isEmpty() ? null : notes;
-        item.priority = priority;
+        item.priority = 2; // Default to Medium priority
 
         viewModel.insertWatchlist(item);
         Toast.makeText(getContext(), "Added to watchlist!", Toast.LENGTH_SHORT).show();
