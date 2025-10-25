@@ -127,7 +127,8 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             // Location chip
             try {
                 LocationType locationType = LocationType.valueOf(entry.locationType);
-                chipLocation.setText(locationType.name().replace("_", " "));
+                String locationText = getLocationEmoji(locationType) + " " + locationType.getDisplayName();
+                chipLocation.setText(locationText);
                 chipLocation.setVisibility(View.VISIBLE);
             } catch (IllegalArgumentException e) {
                 chipLocation.setVisibility(View.GONE);
@@ -187,7 +188,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
 
             // Notes
             if (entry.notes != null && !entry.notes.isEmpty()) {
-                textNotes.setText(entry.notes);
+                textNotes.setText("💭 " + entry.notes);
                 textNotes.setVisibility(View.VISIBLE);
             } else {
                 textNotes.setVisibility(View.GONE);
@@ -195,7 +196,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
 
             // Theater info
             if (entry.theaterName != null && !entry.theaterName.isEmpty()) {
-                StringBuilder theaterInfo = new StringBuilder("🎭 ");
+                StringBuilder theaterInfo = new StringBuilder("📍 ");
                 theaterInfo.append(entry.theaterName);
                 if (entry.city != null && !entry.city.isEmpty()) {
                     theaterInfo.append(", ").append(entry.city);
@@ -204,6 +205,21 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textTheaterInfo.setVisibility(View.VISIBLE);
             } else {
                 textTheaterInfo.setVisibility(View.GONE);
+            }
+        }
+
+        private String getLocationEmoji(LocationType locationType) {
+            switch (locationType) {
+                case HOME:
+                    return "🏠";
+                case THEATER:
+                    return "🎭";
+                case FRIENDS_HOME:
+                    return "👥";
+                case OTHER:
+                    return "📍";
+                default:
+                    return "📍";
             }
         }
 
