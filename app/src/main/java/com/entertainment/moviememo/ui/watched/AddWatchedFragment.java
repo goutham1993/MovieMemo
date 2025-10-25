@@ -90,6 +90,17 @@ public class AddWatchedFragment extends Fragment {
         binding.buttonDate.setOnClickListener(v -> showDatePicker());
         binding.buttonSave.setOnClickListener(v -> saveWatchedEntry());
         binding.buttonCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        
+        // Add focus change listener to companions field to capitalize first letter
+        binding.editCompanions.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) { // When field loses focus
+                String text = binding.editCompanions.getText().toString().trim();
+                if (!text.isEmpty()) {
+                    String capitalized = text.substring(0, 1).toUpperCase() + text.substring(1);
+                    binding.editCompanions.setText(capitalized);
+                }
+            }
+        });
     }
 
     private void showDatePicker() {
