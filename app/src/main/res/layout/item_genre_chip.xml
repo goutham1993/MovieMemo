@@ -21,26 +21,17 @@
         android:gravity="center">
 
         <TextView
-            android:id="@+id/text_emoji"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_marginBottom="4dp"
-            android:gravity="center"
-            tools:text="🎬" />
-
-        <TextView
             android:id="@+id/text_genre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="?attr/colorOnPrimaryContainer"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:maxLines="2"
             android:ellipsize="end"
             android:gravity="center"
-            android:layout_marginBottom="2dp"
-            tools:text="Action" />
+            android:layout_marginBottom="4dp"
+            tools:text="🌙 Night" />
 
         <TextView
             android:id="@+id/text_count"
@@ -50,7 +41,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:gravity="center"
-            tools:text="12" />
+            tools:text="2" />
 
     </LinearLayout>
 
