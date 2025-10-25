@@ -61,9 +61,11 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
         private Chip chipTime;
         private TextView textSpend;
         private TextView textDuration;
+        private TextView textSpendUnderDuration;
         private TextView textCompanions;
         private TextView textLanguage;
         private TextView textNotes;
+        private TextView textTheaterInfo;
 
         public WatchedEntryViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -75,9 +77,11 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             chipTime = itemView.findViewById(R.id.chip_time);
             textSpend = itemView.findViewById(R.id.text_spend);
             textDuration = itemView.findViewById(R.id.text_duration);
+            textSpendUnderDuration = itemView.findViewById(R.id.text_spend_under_duration);
             textCompanions = itemView.findViewById(R.id.text_companions);
             textLanguage = itemView.findViewById(R.id.text_language);
             textNotes = itemView.findViewById(R.id.text_notes);
+            textTheaterInfo = itemView.findViewById(R.id.text_theater_info);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -146,15 +150,18 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textDuration.setVisibility(View.GONE);
             }
 
-            // Spend text
+            // Spend text under duration
             if (entry.spendCents != null && entry.spendCents > 0) {
                 NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
                 String spendText = currencyFormat.format(entry.spendCents / 100.0);
-                textSpend.setText("💰 " + spendText);
-                textSpend.setVisibility(View.VISIBLE);
+                textSpendUnderDuration.setText(spendText);
+                textSpendUnderDuration.setVisibility(View.VISIBLE);
             } else {
-                textSpend.setVisibility(View.GONE);
+                textSpendUnderDuration.setVisibility(View.GONE);
             }
+
+            // Hide the old spend text in metadata section
+            textSpend.setVisibility(View.GONE);
 
             // Companions
             if (entry.companions != null && !entry.companions.isEmpty()) {
@@ -184,6 +191,19 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textNotes.setVisibility(View.VISIBLE);
             } else {
                 textNotes.setVisibility(View.GONE);
+            }
+
+            // Theater info
+            if (entry.theaterName != null && !entry.theaterName.isEmpty()) {
+                StringBuilder theaterInfo = new StringBuilder("🎭 ");
+                theaterInfo.append(entry.theaterName);
+                if (entry.city != null && !entry.city.isEmpty()) {
+                    theaterInfo.append(", ").append(entry.city);
+                }
+                textTheaterInfo.setText(theaterInfo.toString());
+                textTheaterInfo.setVisibility(View.VISIBLE);
+            } else {
+                textTheaterInfo.setVisibility(View.GONE);
             }
         }
 
