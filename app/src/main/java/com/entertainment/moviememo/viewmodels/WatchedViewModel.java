@@ -80,6 +80,31 @@ public class WatchedViewModel extends AndroidViewModel {
         return repository.getWatchedByLocation(locationType);
     }
     
+    // Sorting methods
+    public LiveData<List<WatchedEntry>> getWatchedByDateDesc() {
+        return repository.getWatchedByDateDesc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedByDateAsc() {
+        return repository.getWatchedByDateAsc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedByRatingDesc() {
+        return repository.getWatchedByRatingDesc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedByRatingAsc() {
+        return repository.getWatchedByRatingAsc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedBySpendDesc() {
+        return repository.getWatchedBySpendDesc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedBySpendAsc() {
+        return repository.getWatchedBySpendAsc();
+    }
+    
     public void insertWatched(WatchedEntry entry) {
         repository.insertWatched(entry);
     }

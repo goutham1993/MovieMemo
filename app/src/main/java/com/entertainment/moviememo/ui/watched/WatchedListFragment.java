@@ -29,6 +29,7 @@ public class WatchedListFragment extends Fragment {
     private WatchedViewModel viewModel;
     private WatchedEntryAdapter adapter;
     private String currentFilter = "ALL"; // ALL, HOME, THEATER
+    private String currentSort = "DATE_DESC"; // DATE_DESC, DATE_ASC, RATING_DESC, RATING_ASC, SPEND_DESC, SPEND_ASC
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -45,6 +46,7 @@ public class WatchedListFragment extends Fragment {
         setupRecyclerView();
         setupSearch();
         setupFilters();
+        setupSorting();
         observeData();
     }
 
@@ -141,6 +143,58 @@ public class WatchedListFragment extends Fragment {
         }
     }
     
+    private void setupSorting() {
+        // Create sort options
+        String[] sortOptions = {
+            "📅 Date (Newest)",
+            "📅 Date (Oldest)", 
+            "⭐ Rating (Highest)",
+            "⭐ Rating (Lowest)",
+            "💰 Amount (Highest)",
+            "💰 Amount (Lowest)"
+        };
+        
+        // Setup dropdown adapter
+        android.widget.ArrayAdapter<String> sortAdapter = new android.widget.ArrayAdapter<>(
+            getContext(), 
+            android.R.layout.simple_dropdown_item_1line, 
+            sortOptions
+        );
+        binding.dropdownSort.setAdapter(sortAdapter);
+        
+        // Handle sort selection
+        binding.dropdownSort.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedSort = sortOptions[position];
+            binding.dropdownSort.setText(selectedSort, false);
+            
+            // Update current sort based on selection
+            switch (position) {
+                case 0: currentSort = "DATE_DESC"; break;
+                case 1: currentSort = "DATE_ASC"; break;
+                case 2: currentSort = "RATING_DESC"; break;
+                case 3: currentSort = "RATING_ASC"; break;
+                case 4: currentSort = "SPEND_DESC"; break;
+                case 5: currentSort = "SPEND_ASC"; break;
+            }
+            
+            // Apply sorting
+            applySorting();
+        });
+    }
+    
+    private void applySorting() {
+        if (currentFilter.equals("ALL")) {
+            observeData();
+        } else {
+            // Reapply current filter with new sorting
+            if (currentFilter.equals("HOME")) {
+                filterByLocation(LocationType.HOME.name());
+            } else if (currentFilter.equals("THEATER")) {
+                filterByLocation(LocationType.THEATER.name());
+            }
+        }
+    }
+    
     private void filterByLocation(String locationType) {
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.recyclerViewWatched.setVisibility(View.GONE);
@@ -216,19 +270,41 @@ public class WatchedListFragment extends Fragment {
         binding.recyclerViewWatched.setVisibility(View.GONE);
         binding.textEmptyState.setVisibility(View.GONE);
         
-        viewModel.getAllWatched().observe(getViewLifecycleOwner(), watchedEntries -> {
+        // Get the appropriate LiveData based on current sort
+        androidx.lifecycle.LiveData<List<WatchedEntry>> liveData = getSortedLiveData();
+        
+        liveData.observe(getViewLifecycleOwner(), watchedEntries -> {
             binding.progressBar.setVisibility(View.GONE);
             
-                    if (watchedEntries != null && !watchedEntries.isEmpty()) {
-                        adapter.submitList(watchedEntries);
-                        binding.textEmptyState.setVisibility(View.GONE);
-                        binding.recyclerViewWatched.setVisibility(View.VISIBLE);
-                    } else {
-                        adapter.submitList(new ArrayList<>());
-                        binding.textEmptyState.setVisibility(View.VISIBLE);
-                        binding.recyclerViewWatched.setVisibility(View.GONE);
-                    }
+            if (watchedEntries != null && !watchedEntries.isEmpty()) {
+                adapter.submitList(watchedEntries);
+                binding.textEmptyState.setVisibility(View.GONE);
+                binding.recyclerViewWatched.setVisibility(View.VISIBLE);
+            } else {
+                adapter.submitList(new ArrayList<>());
+                binding.textEmptyState.setVisibility(View.VISIBLE);
+                binding.recyclerViewWatched.setVisibility(View.GONE);
+            }
         });
+    }
+    
+    private androidx.lifecycle.LiveData<List<WatchedEntry>> getSortedLiveData() {
+        switch (currentSort) {
+            case "DATE_DESC":
+                return viewModel.getWatchedByDateDesc();
+            case "DATE_ASC":
+                return viewModel.getWatchedByDateAsc();
+            case "RATING_DESC":
+                return viewModel.getWatchedByRatingDesc();
+            case "RATING_ASC":
+                return viewModel.getWatchedByRatingAsc();
+            case "SPEND_DESC":
+                return viewModel.getWatchedBySpendDesc();
+            case "SPEND_ASC":
+                return viewModel.getWatchedBySpendAsc();
+            default:
+                return viewModel.getWatchedByDateDesc();
+        }
     }
 
     private void editMovie(WatchedEntry entry) {

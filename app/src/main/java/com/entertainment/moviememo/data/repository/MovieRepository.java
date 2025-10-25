@@ -53,6 +53,31 @@ public class MovieRepository {
         return movieDao.getWatchedByLocation(locationType);
     }
     
+    // Sorting methods
+    public LiveData<List<WatchedEntry>> getWatchedByDateDesc() {
+        return movieDao.listWatchedByDateDesc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedByDateAsc() {
+        return movieDao.listWatchedByDateAsc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedByRatingDesc() {
+        return movieDao.listWatchedByRatingDesc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedByRatingAsc() {
+        return movieDao.listWatchedByRatingAsc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedBySpendDesc() {
+        return movieDao.listWatchedBySpendDesc();
+    }
+    
+    public LiveData<List<WatchedEntry>> getWatchedBySpendAsc() {
+        return movieDao.listWatchedBySpendAsc();
+    }
+    
     public LiveData<Integer> getWatchedCount() {
         return movieDao.countWatched();
     }

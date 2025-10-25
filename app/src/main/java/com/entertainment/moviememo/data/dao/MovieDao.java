@@ -39,6 +39,25 @@ public interface MovieDao {
     @Query("SELECT * FROM watched_entries WHERE locationType = :locationType ORDER BY watchedDate DESC, id DESC")
     LiveData<List<WatchedEntry>> getWatchedByLocation(String locationType);
     
+    // Sorting queries
+    @Query("SELECT * FROM watched_entries ORDER BY watchedDate DESC, id DESC")
+    LiveData<List<WatchedEntry>> listWatchedByDateDesc();
+    
+    @Query("SELECT * FROM watched_entries ORDER BY watchedDate ASC, id DESC")
+    LiveData<List<WatchedEntry>> listWatchedByDateAsc();
+    
+    @Query("SELECT * FROM watched_entries ORDER BY rating DESC, watchedDate DESC")
+    LiveData<List<WatchedEntry>> listWatchedByRatingDesc();
+    
+    @Query("SELECT * FROM watched_entries ORDER BY rating ASC, watchedDate DESC")
+    LiveData<List<WatchedEntry>> listWatchedByRatingAsc();
+    
+    @Query("SELECT * FROM watched_entries ORDER BY spendCents DESC, watchedDate DESC")
+    LiveData<List<WatchedEntry>> listWatchedBySpendDesc();
+    
+    @Query("SELECT * FROM watched_entries ORDER BY spendCents ASC, watchedDate DESC")
+    LiveData<List<WatchedEntry>> listWatchedBySpendAsc();
+    
     @Query("SELECT COUNT(*) FROM watched_entries")
     LiveData<Integer> countWatched();
     
