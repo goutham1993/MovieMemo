@@ -29,6 +29,8 @@ public class StatsViewModel extends AndroidViewModel {
     private LiveData<List<KeyCount>> moviesByCompanion;
     private LiveData<Integer> thisMonthCount;
     private LiveData<Integer> thisMonthSpendCents;
+    private LiveData<Integer> avgSpendCents;
+    private LiveData<Integer> thisMonthAvgSpendCents;
     
     public StatsViewModel(@NonNull Application application) {
         super(application);
@@ -46,6 +48,8 @@ public class StatsViewModel extends AndroidViewModel {
         moviesByCompanion = repository.getMoviesByCompanion();
         thisMonthCount = repository.getThisMonthCount();
         thisMonthSpendCents = repository.getThisMonthSpendCents();
+        avgSpendCents = repository.getAvgSpendCents();
+        thisMonthAvgSpendCents = repository.getThisMonthAvgSpendCents();
     }
     
     public LiveData<Integer> getWatchedCount() {
@@ -98,5 +102,13 @@ public class StatsViewModel extends AndroidViewModel {
     
     public LiveData<Integer> getThisMonthSpendCents() {
         return thisMonthSpendCents;
+    }
+    
+    public LiveData<Integer> getAvgSpendCents() {
+        return avgSpendCents;
+    }
+    
+    public LiveData<Integer> getThisMonthAvgSpendCents() {
+        return thisMonthAvgSpendCents;
     }
 }

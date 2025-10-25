@@ -131,6 +131,14 @@ public class MovieRepository {
         return movieDao.thisMonthSpendCents();
     }
     
+    public LiveData<Integer> getAvgSpendCents() {
+        return movieDao.avgSpendCents();
+    }
+    
+    public LiveData<Integer> getThisMonthAvgSpendCents() {
+        return movieDao.thisMonthAvgSpendCents();
+    }
+    
     // Watchlist Items
     public void insertWatchlist(WatchlistItem item) {
         executor.execute(() -> movieDao.insertWatchlist(item));

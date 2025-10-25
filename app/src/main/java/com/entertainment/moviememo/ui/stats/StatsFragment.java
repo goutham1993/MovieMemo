@@ -120,6 +120,22 @@ public class StatsFragment extends Fragment {
             }
         });
 
+        // Average spend (theater movies only)
+        viewModel.getAvgSpendCents().observe(getViewLifecycleOwner(), avgSpendCents -> {
+            if (avgSpendCents != null && binding.textAvgSpendValue != null) {
+                String avgSpendText = String.format("$%.2f", avgSpendCents / 100.0);
+                binding.textAvgSpendValue.setText(avgSpendText);
+            }
+        });
+
+        // This month average spend (theater movies only)
+        viewModel.getThisMonthAvgSpendCents().observe(getViewLifecycleOwner(), avgSpendCents -> {
+            if (avgSpendCents != null && binding.textThisMonthAvgSpendValue != null) {
+                String avgSpendText = String.format("$%.2f", avgSpendCents / 100.0);
+                binding.textThisMonthAvgSpendValue.setText(avgSpendText);
+            }
+        });
+
         // Watch time in different units
         viewModel.getTotalDurationMinutes().observe(getViewLifecycleOwner(), totalMinutes -> {
             if (totalMinutes != null) {
