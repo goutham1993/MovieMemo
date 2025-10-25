@@ -36,6 +36,9 @@ public interface MovieDao {
     @Query("SELECT * FROM watched_entries WHERE title LIKE :query OR notes LIKE :query ORDER BY watchedDate DESC")
     LiveData<List<WatchedEntry>> searchWatched(String query);
     
+    @Query("SELECT * FROM watched_entries WHERE locationType = :locationType ORDER BY watchedDate DESC, id DESC")
+    LiveData<List<WatchedEntry>> getWatchedByLocation(String locationType);
+    
     @Query("SELECT COUNT(*) FROM watched_entries")
     LiveData<Integer> countWatched();
     

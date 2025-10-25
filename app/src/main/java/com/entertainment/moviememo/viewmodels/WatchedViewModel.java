@@ -76,6 +76,10 @@ public class WatchedViewModel extends AndroidViewModel {
         return repository.searchWatched(query);
     }
     
+    public LiveData<List<WatchedEntry>> getWatchedByLocation(String locationType) {
+        return repository.getWatchedByLocation(locationType);
+    }
+    
     public void insertWatched(WatchedEntry entry) {
         repository.insertWatched(entry);
     }

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.entertainment.moviememo.data.entities.WatchedEntry;
 import com.entertainment.moviememo.databinding.FragmentWatchedListBinding;
 import com.entertainment.moviememo.viewmodels.WatchedViewModel;
+import com.entertainment.moviememo.data.enums.LocationType;
 import com.entertainment.moviememo.ui.adapters.WatchedEntryAdapter;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class WatchedListFragment extends Fragment {
     private FragmentWatchedListBinding binding;
     private WatchedViewModel viewModel;
     private WatchedEntryAdapter adapter;
+    private String currentFilter = "ALL"; // ALL, HOME, THEATER
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -42,6 +44,7 @@ public class WatchedListFragment extends Fragment {
         setupViewModel();
         setupRecyclerView();
         setupSearch();
+        setupFilters();
         observeData();
     }
 
@@ -95,8 +98,105 @@ public class WatchedListFragment extends Fragment {
         });
     }
 
+    private void setupFilters() {
+        // Set initial state - All button selected
+        updateFilterButtons("ALL");
+        
+        binding.buttonFilterAll.setOnClickListener(v -> {
+            currentFilter = "ALL";
+            updateFilterButtons("ALL");
+            observeData();
+        });
+        
+        binding.buttonFilterHome.setOnClickListener(v -> {
+            currentFilter = "HOME";
+            updateFilterButtons("HOME");
+            filterByLocation(LocationType.HOME.name());
+        });
+        
+        binding.buttonFilterTheater.setOnClickListener(v -> {
+            currentFilter = "THEATER";
+            updateFilterButtons("THEATER");
+            filterByLocation(LocationType.THEATER.name());
+        });
+    }
+    
+    private void updateFilterButtons(String selectedFilter) {
+        // Reset all buttons to unselected state
+        binding.buttonFilterAll.setSelected(false);
+        binding.buttonFilterHome.setSelected(false);
+        binding.buttonFilterTheater.setSelected(false);
+        
+        // Set selected button
+        switch (selectedFilter) {
+            case "ALL":
+                binding.buttonFilterAll.setSelected(true);
+                break;
+            case "HOME":
+                binding.buttonFilterHome.setSelected(true);
+                break;
+            case "THEATER":
+                binding.buttonFilterTheater.setSelected(true);
+                break;
+        }
+    }
+    
+    private void filterByLocation(String locationType) {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.recyclerViewWatched.setVisibility(View.GONE);
+        binding.textEmptyState.setVisibility(View.GONE);
+        
+        viewModel.getWatchedByLocation(locationType).observe(getViewLifecycleOwner(), watchedEntries -> {
+            binding.progressBar.setVisibility(View.GONE);
+            
+            if (watchedEntries != null && !watchedEntries.isEmpty()) {
+                adapter.submitList(watchedEntries);
+                binding.textEmptyState.setVisibility(View.GONE);
+                binding.recyclerViewWatched.setVisibility(View.VISIBLE);
+            } else {
+                adapter.submitList(new ArrayList<>());
+                binding.textEmptyState.setText("No movies watched at " + locationType.toLowerCase());
+                binding.textEmptyState.setVisibility(View.VISIBLE);
+                binding.recyclerViewWatched.setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void searchMovies(String query) {
-        viewModel.searchWatched(query).observe(getViewLifecycleOwner(), watchedEntries -> {
+        // If there's an active filter, we need to filter the search results
+        if (!currentFilter.equals("ALL")) {
+            // For now, just show all results and let user clear search to see filtered results
+            // This could be enhanced to search within filtered results
+            viewModel.searchWatched(query).observe(getViewLifecycleOwner(), watchedEntries -> {
+                if (watchedEntries != null && !watchedEntries.isEmpty()) {
+                    // Filter the search results by current location filter
+                    List<WatchedEntry> filteredEntries = new ArrayList<>();
+                    for (WatchedEntry entry : watchedEntries) {
+                        if (currentFilter.equals("HOME") && entry.locationType.equals("HOME")) {
+                            filteredEntries.add(entry);
+                        } else if (currentFilter.equals("THEATER") && entry.locationType.equals("THEATER")) {
+                            filteredEntries.add(entry);
+                        }
+                    }
+                    
+                    if (!filteredEntries.isEmpty()) {
+                        adapter.submitList(filteredEntries);
+                        binding.textEmptyState.setVisibility(View.GONE);
+                        binding.recyclerViewWatched.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.textEmptyState.setText("No movies found matching \"" + query + "\" in " + currentFilter.toLowerCase());
+                        binding.textEmptyState.setVisibility(View.VISIBLE);
+                        binding.recyclerViewWatched.setVisibility(View.GONE);
+                    }
+                } else {
+                    binding.textEmptyState.setText("No movies found matching \"" + query + "\"");
+                    binding.textEmptyState.setVisibility(View.VISIBLE);
+                    binding.recyclerViewWatched.setVisibility(View.GONE);
+                }
+            });
+        } else {
+            // No filter active, show all search results
+            viewModel.searchWatched(query).observe(getViewLifecycleOwner(), watchedEntries -> {
                 if (watchedEntries != null && !watchedEntries.isEmpty()) {
                     adapter.submitList(watchedEntries);
                     binding.textEmptyState.setVisibility(View.GONE);
@@ -106,7 +206,8 @@ public class WatchedListFragment extends Fragment {
                     binding.textEmptyState.setVisibility(View.VISIBLE);
                     binding.recyclerViewWatched.setVisibility(View.GONE);
                 }
-        });
+            });
+        }
     }
 
     private void observeData() {

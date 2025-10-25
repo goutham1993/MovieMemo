@@ -49,6 +49,10 @@ public class MovieRepository {
         return movieDao.searchWatched("%" + query + "%");
     }
     
+    public LiveData<List<WatchedEntry>> getWatchedByLocation(String locationType) {
+        return movieDao.getWatchedByLocation(locationType);
+    }
+    
     public LiveData<Integer> getWatchedCount() {
         return movieDao.countWatched();
     }
