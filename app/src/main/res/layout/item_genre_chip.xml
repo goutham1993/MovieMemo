@@ -10,41 +10,48 @@
     app:strokeWidth="0dp"
     app:cardBackgroundColor="?attr/colorPrimaryContainer">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="100dp"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="16dp">
+        android:minHeight="80dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/text_emoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginBottom="4dp"
+            android:gravity="center"
+            tools:text="🎬" />
 
         <TextView
             android:id="@+id/text_genre"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="?attr/colorOnPrimaryContainer"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:letterSpacing="0.01"
             android:maxLines="2"
             android:ellipsize="end"
             android:gravity="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="2dp"
             tools:text="Action" />
 
         <TextView
             android:id="@+id/text_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:textColor="?attr/colorOnPrimaryContainer"
-            android:textSize="12sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_genre"
+            android:gravity="center"
             tools:text="12" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
