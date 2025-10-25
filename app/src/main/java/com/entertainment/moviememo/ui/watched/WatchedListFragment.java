@@ -46,7 +46,7 @@ public class WatchedListFragment extends Fragment {
         setupRecyclerView();
         setupSearch();
         setupFilters();
-        setupSorting();
+        setupSortDialog();
         observeData();
     }
 
@@ -143,8 +143,11 @@ public class WatchedListFragment extends Fragment {
         }
     }
     
-    private void setupSorting() {
-        // Create sort options
+    private void setupSortDialog() {
+        binding.buttonSort.setOnClickListener(v -> showSortDialog());
+    }
+    
+    private void showSortDialog() {
         String[] sortOptions = {
             "📅 Date (Newest)",
             "📅 Date (Oldest)", 
@@ -154,32 +157,36 @@ public class WatchedListFragment extends Fragment {
             "💰 Amount (Lowest)"
         };
         
-        // Setup dropdown adapter
-        android.widget.ArrayAdapter<String> sortAdapter = new android.widget.ArrayAdapter<>(
-            getContext(), 
-            android.R.layout.simple_dropdown_item_1line, 
-            sortOptions
-        );
-        binding.dropdownSort.setAdapter(sortAdapter);
+        // Find current selection index
+        int currentSelection = 0;
+        switch (currentSort) {
+            case "DATE_DESC": currentSelection = 0; break;
+            case "DATE_ASC": currentSelection = 1; break;
+            case "RATING_DESC": currentSelection = 2; break;
+            case "RATING_ASC": currentSelection = 3; break;
+            case "SPEND_DESC": currentSelection = 4; break;
+            case "SPEND_ASC": currentSelection = 5; break;
+        }
         
-        // Handle sort selection
-        binding.dropdownSort.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedSort = sortOptions[position];
-            binding.dropdownSort.setText(selectedSort, false);
-            
-            // Update current sort based on selection
-            switch (position) {
-                case 0: currentSort = "DATE_DESC"; break;
-                case 1: currentSort = "DATE_ASC"; break;
-                case 2: currentSort = "RATING_DESC"; break;
-                case 3: currentSort = "RATING_ASC"; break;
-                case 4: currentSort = "SPEND_DESC"; break;
-                case 5: currentSort = "SPEND_ASC"; break;
-            }
-            
-            // Apply sorting
-            applySorting();
-        });
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Sort Movies")
+                .setSingleChoiceItems(sortOptions, currentSelection, (dialog, which) -> {
+                    // Update current sort based on selection
+                    switch (which) {
+                        case 0: currentSort = "DATE_DESC"; break;
+                        case 1: currentSort = "DATE_ASC"; break;
+                        case 2: currentSort = "RATING_DESC"; break;
+                        case 3: currentSort = "RATING_ASC"; break;
+                        case 4: currentSort = "SPEND_DESC"; break;
+                        case 5: currentSort = "SPEND_ASC"; break;
+                    }
+                    
+                    // Apply sorting and close dialog
+                    applySorting();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
     }
     
     private void applySorting() {
