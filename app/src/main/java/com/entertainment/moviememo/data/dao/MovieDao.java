@@ -120,10 +120,10 @@ public interface MovieDao {
     @Delete
     int deleteWatchlist(WatchlistItem item);
     
-    @Query("SELECT * FROM watchlist_items ORDER BY priority ASC, createdAt DESC")
+    @Query("SELECT * FROM watchlist_items ORDER BY createdAt DESC")
     LiveData<List<WatchlistItem>> listWatchlist();
     
-    @Query("SELECT * FROM watchlist_items WHERE title LIKE :query OR notes LIKE :query ORDER BY priority ASC, createdAt DESC")
+    @Query("SELECT * FROM watchlist_items WHERE title LIKE :query OR notes LIKE :query ORDER BY createdAt DESC")
     LiveData<List<WatchlistItem>> searchWatchlist(String query);
     
     // Genres
