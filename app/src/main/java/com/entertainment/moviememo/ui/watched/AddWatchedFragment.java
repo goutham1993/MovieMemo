@@ -58,6 +58,7 @@ public class AddWatchedFragment extends Fragment {
         setupCompanionsAutocomplete();
         setupTheaterAutocomplete();
         setupCityAutocomplete();
+        setupStreamingPlatformAutocomplete();
         setupLocationSpinnerListener();
     }
 
@@ -98,15 +99,57 @@ public class AddWatchedFragment extends Fragment {
                 LocationType selectedLocation = LocationType.values()[position];
                 if (selectedLocation == LocationType.THEATER) {
                     binding.layoutTheaterFields.setVisibility(View.VISIBLE);
+                    binding.layoutHomeFields.setVisibility(View.GONE);
+                } else if (selectedLocation == LocationType.HOME) {
+                    binding.layoutTheaterFields.setVisibility(View.GONE);
+                    binding.layoutHomeFields.setVisibility(View.VISIBLE);
                 } else {
                     binding.layoutTheaterFields.setVisibility(View.GONE);
+                    binding.layoutHomeFields.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {
                 binding.layoutTheaterFields.setVisibility(View.GONE);
+                binding.layoutHomeFields.setVisibility(View.GONE);
             }
+        });
+        
+        // Set HOME as default selection
+        binding.spinnerLocation.setSelection(LocationType.HOME.ordinal());
+        binding.layoutHomeFields.setVisibility(View.VISIBLE);
+    }
+
+    private void setupStreamingPlatformAutocomplete() {
+        // Get all previous streaming platforms from the database
+        viewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
+            List<String> platforms = new ArrayList<>();
+            // Add common streaming platforms as defaults
+            platforms.add("Netflix");
+            platforms.add("Prime Video");
+            platforms.add("Disney+");
+            platforms.add("Hulu");
+            platforms.add("HBO Max");
+            platforms.add("Paramount+");
+            platforms.add("Apple TV+");
+            platforms.add("Peacock");
+            platforms.add("YouTube");
+            platforms.add("Crunchyroll");
+            
+            for (WatchedEntry entry : entries) {
+                if (entry.streamingPlatform != null && !entry.streamingPlatform.trim().isEmpty()) {
+                    String trimmed = entry.streamingPlatform.trim();
+                    if (!platforms.contains(trimmed)) {
+                        platforms.add(trimmed);
+                    }
+                }
+            }
+            
+            // Set up the autocomplete adapter
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                R.layout.autocomplete_item, platforms);
+            binding.editStreamingPlatform.setAdapter(adapter);
         });
     }
 
@@ -238,6 +281,10 @@ public class AddWatchedFragment extends Fragment {
             String city = binding.editCity.getText().toString().trim();
             if (!TextUtils.isEmpty(theaterName)) entry.theaterName = theaterName;
             if (!TextUtils.isEmpty(city)) entry.city = city;
+        } else if (selectedLocation == LocationType.HOME) {
+            // Set streaming platform if location is HOME
+            String streamingPlatform = binding.editStreamingPlatform.getText().toString().trim();
+            if (!TextUtils.isEmpty(streamingPlatform)) entry.streamingPlatform = streamingPlatform;
         }
 
         // Parse rating

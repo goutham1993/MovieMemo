@@ -68,6 +68,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
         private TextView textLanguage;
         private TextView textNotes;
         private TextView textTheaterInfo;
+        private TextView textStreamingPlatform;
 
         public WatchedEntryViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -84,6 +85,7 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
             textLanguage = itemView.findViewById(R.id.text_language);
             textNotes = itemView.findViewById(R.id.text_notes);
             textTheaterInfo = itemView.findViewById(R.id.text_theater_info);
+            textStreamingPlatform = itemView.findViewById(R.id.text_streaming_platform);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -190,25 +192,56 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textLanguage.setVisibility(View.GONE);
             }
 
-            // Notes
+            // Theater info and streaming platform (only for THEATER/HOME location)
+            boolean theaterInfoVisible = false;
+            boolean streamingPlatformVisible = false;
+            try {
+                LocationType locationType = LocationType.valueOf(entry.locationType);
+                if (locationType == LocationType.THEATER && entry.theaterName != null && !entry.theaterName.isEmpty()) {
+                    StringBuilder theaterInfo = new StringBuilder("📍 at ");
+                    theaterInfo.append(entry.theaterName);
+                    if (entry.city != null && !entry.city.isEmpty()) {
+                        theaterInfo.append(", ").append(entry.city);
+                    }
+                    textTheaterInfo.setText(theaterInfo.toString());
+                    textTheaterInfo.setVisibility(View.VISIBLE);
+                    theaterInfoVisible = true;
+                    textStreamingPlatform.setVisibility(View.GONE);
+                } else if (locationType == LocationType.HOME && entry.streamingPlatform != null && !entry.streamingPlatform.isEmpty()) {
+                    // Streaming platform (only for HOME location)
+                    textStreamingPlatform.setText("📺 Watched on " + entry.streamingPlatform);
+                    textStreamingPlatform.setVisibility(View.VISIBLE);
+                    streamingPlatformVisible = true;
+                    textTheaterInfo.setVisibility(View.GONE);
+                } else {
+                    textTheaterInfo.setVisibility(View.GONE);
+                    textStreamingPlatform.setVisibility(View.GONE);
+                }
+            } catch (IllegalArgumentException e) {
+                textTheaterInfo.setVisibility(View.GONE);
+                textStreamingPlatform.setVisibility(View.GONE);
+            }
+
+            // Notes - position it after whichever field is visible
             if (entry.notes != null && !entry.notes.isEmpty()) {
                 textNotes.setText("💭 " + entry.notes);
                 textNotes.setVisibility(View.VISIBLE);
+                // Position notes below whichever info is visible
+                android.view.ViewGroup.LayoutParams params = textNotes.getLayoutParams();
+                if (params instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
+                    androidx.constraintlayout.widget.ConstraintLayout.LayoutParams constraintParams = 
+                        (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) params;
+                    if (theaterInfoVisible) {
+                        constraintParams.topToBottom = R.id.text_theater_info;
+                    } else if (streamingPlatformVisible) {
+                        constraintParams.topToBottom = R.id.text_streaming_platform;
+                    } else {
+                        constraintParams.topToBottom = R.id.text_language;
+                    }
+                    textNotes.setLayoutParams(constraintParams);
+                }
             } else {
                 textNotes.setVisibility(View.GONE);
-            }
-
-            // Theater info
-            if (entry.theaterName != null && !entry.theaterName.isEmpty()) {
-                StringBuilder theaterInfo = new StringBuilder("📍 at ");
-                theaterInfo.append(entry.theaterName);
-                if (entry.city != null && !entry.city.isEmpty()) {
-                    theaterInfo.append(", ").append(entry.city);
-                }
-                textTheaterInfo.setText(theaterInfo.toString());
-                textTheaterInfo.setVisibility(View.VISIBLE);
-            } else {
-                textTheaterInfo.setVisibility(View.GONE);
             }
         }
 

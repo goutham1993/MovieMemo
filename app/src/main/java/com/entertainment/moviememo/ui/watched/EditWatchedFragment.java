@@ -67,6 +67,7 @@ public class EditWatchedFragment extends Fragment {
         setupCompanionsAutocomplete();
         setupTheaterAutocomplete();
         setupCityAutocomplete();
+        setupStreamingPlatformAutocomplete();
         setupLocationSpinnerListener();
     }
 
@@ -121,15 +122,53 @@ public class EditWatchedFragment extends Fragment {
                 LocationType selectedLocation = LocationType.values()[position];
                 if (selectedLocation == LocationType.THEATER) {
                     binding.layoutTheaterFields.setVisibility(View.VISIBLE);
+                    binding.layoutHomeFields.setVisibility(View.GONE);
+                } else if (selectedLocation == LocationType.HOME) {
+                    binding.layoutTheaterFields.setVisibility(View.GONE);
+                    binding.layoutHomeFields.setVisibility(View.VISIBLE);
                 } else {
                     binding.layoutTheaterFields.setVisibility(View.GONE);
+                    binding.layoutHomeFields.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {
                 binding.layoutTheaterFields.setVisibility(View.GONE);
+                binding.layoutHomeFields.setVisibility(View.GONE);
             }
+        });
+    }
+
+    private void setupStreamingPlatformAutocomplete() {
+        // Get all previous streaming platforms from the database
+        viewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
+            List<String> platforms = new ArrayList<>();
+            // Add common streaming platforms as defaults
+            platforms.add("Netflix");
+            platforms.add("Prime Video");
+            platforms.add("Disney+");
+            platforms.add("Hulu");
+            platforms.add("HBO Max");
+            platforms.add("Paramount+");
+            platforms.add("Apple TV+");
+            platforms.add("Peacock");
+            platforms.add("YouTube");
+            platforms.add("Crunchyroll");
+            
+            for (WatchedEntry entry : entries) {
+                if (entry.streamingPlatform != null && !entry.streamingPlatform.trim().isEmpty()) {
+                    String trimmed = entry.streamingPlatform.trim();
+                    if (!platforms.contains(trimmed)) {
+                        platforms.add(trimmed);
+                    }
+                }
+            }
+            
+            // Set up the autocomplete adapter
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                R.layout.autocomplete_item, platforms);
+            binding.editStreamingPlatform.setAdapter(adapter);
         });
     }
 
@@ -228,17 +267,25 @@ public class EditWatchedFragment extends Fragment {
             int locationIndex = locationType.ordinal();
             binding.spinnerLocation.setSelection(locationIndex);
             
-            // Show/hide theater fields based on location
+            // Show/hide theater/home fields based on location
             if (locationType == LocationType.THEATER) {
                 binding.layoutTheaterFields.setVisibility(View.VISIBLE);
+                binding.layoutHomeFields.setVisibility(View.GONE);
                 if (entryToEdit.theaterName != null) {
                     binding.editTheaterName.setText(entryToEdit.theaterName);
                 }
                 if (entryToEdit.city != null) {
                     binding.editCity.setText(entryToEdit.city);
                 }
+            } else if (locationType == LocationType.HOME) {
+                binding.layoutTheaterFields.setVisibility(View.GONE);
+                binding.layoutHomeFields.setVisibility(View.VISIBLE);
+                if (entryToEdit.streamingPlatform != null) {
+                    binding.editStreamingPlatform.setText(entryToEdit.streamingPlatform);
+                }
             } else {
                 binding.layoutTheaterFields.setVisibility(View.GONE);
+                binding.layoutHomeFields.setVisibility(View.GONE);
             }
         } catch (IllegalArgumentException e) {
             binding.spinnerLocation.setSelection(0);
@@ -417,13 +464,17 @@ public class EditWatchedFragment extends Fragment {
         // Set language
         updatedEntry.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
         
-        // Set theater fields if location is THEATER
+        // Set theater/home fields based on location
         LocationType selectedLocation = LocationType.values()[binding.spinnerLocation.getSelectedItemPosition()];
         if (selectedLocation == LocationType.THEATER) {
             String theaterName = binding.editTheaterName.getText().toString().trim();
             String city = binding.editCity.getText().toString().trim();
             if (!TextUtils.isEmpty(theaterName)) updatedEntry.theaterName = theaterName;
             if (!TextUtils.isEmpty(city)) updatedEntry.city = city;
+        } else if (selectedLocation == LocationType.HOME) {
+            // Set streaming platform if location is HOME
+            String streamingPlatform = binding.editStreamingPlatform.getText().toString().trim();
+            if (!TextUtils.isEmpty(streamingPlatform)) updatedEntry.streamingPlatform = streamingPlatform;
         }
 
         // Parse rating

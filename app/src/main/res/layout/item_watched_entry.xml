@@ -152,7 +152,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_theater_info"
+            app:layout_constraintTop_toBottomOf="@+id/text_streaming_platform"
             tools:text="Great movie with amazing action sequences!"
             tools:visibility="visible" />
 
@@ -169,6 +169,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_language"
             tools:text="📍 at Cinemark, Dallas"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/text_streaming_platform"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_language"
+            tools:text="📺 Watched on Prime Video"
             tools:visibility="visible" />
 
         <LinearLayout

@@ -47,6 +47,8 @@ public class WatchedEntry implements Serializable {
     
     public String city; // City when location is THEATER
     
+    public String streamingPlatform; // Streaming platform when location is HOME
+    
     public WatchedEntry(@NonNull String title, @NonNull String watchedDate, 
                        @NonNull String locationType, @NonNull String timeOfDay) {
         this.title = title;
