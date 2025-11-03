@@ -15,7 +15,7 @@ import com.entertainment.moviememo.data.entities.Genre;
 
 @Database(
     entities = {WatchedEntry.class, WatchlistItem.class, Genre.class},
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -33,7 +33,7 @@ public abstract class AppDatabase extends RoomDatabase {
                         AppDatabase.class,
                         "movie_memo_database"
                     )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .addCallback(new RoomDatabase.Callback() {
                         @Override
                         public void onCreate(SupportSQLiteDatabase db) {
@@ -90,6 +90,17 @@ public abstract class AppDatabase extends RoomDatabase {
             // Add theater_name and city columns to watched_entries table
             database.execSQL("ALTER TABLE watched_entries ADD COLUMN theaterName TEXT");
             database.execSQL("ALTER TABLE watched_entries ADD COLUMN city TEXT");
+        }
+    };
+    
+    // Migration from version 3 to 4: Add where to watch and release date fields to watchlist_items table
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Add whereToWatch and releaseDate columns to watchlist_items table
+            database.execSQL("ALTER TABLE watchlist_items ADD COLUMN whereToWatch TEXT");
+            database.execSQL("ALTER TABLE watchlist_items ADD COLUMN releaseDate INTEGER");
+            // Existing records will have NULL values, which is fine
         }
     };
 }

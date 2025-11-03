@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.data.entities.WatchlistItem;
+import com.entertainment.moviememo.data.enums.WhereToWatch;
 import com.google.android.material.chip.Chip;
 
 import java.text.SimpleDateFormat;
@@ -54,6 +55,8 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
         private TextView textTitle;
         private TextView textNotes;
         private TextView textLanguage;
+        private TextView textWhereToWatch;
+        private TextView textReleaseDate;
         private TextView textTargetDate;
 
         public WatchlistViewHolder(@NonNull View itemView) {
@@ -61,6 +64,8 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
             textTitle = itemView.findViewById(R.id.text_movie_title);
             textNotes = itemView.findViewById(R.id.text_notes);
             textLanguage = itemView.findViewById(R.id.text_language);
+            textWhereToWatch = itemView.findViewById(R.id.text_where_to_watch);
+            textReleaseDate = itemView.findViewById(R.id.text_release_date);
             textTargetDate = itemView.findViewById(R.id.text_target_date);
 
             itemView.setOnClickListener(v -> {
@@ -107,6 +112,30 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
                 }
             } else {
                 textLanguage.setVisibility(View.GONE);
+            }
+
+            // Where to watch
+            if (item.whereToWatch != null && !item.whereToWatch.isEmpty()) {
+                try {
+                    WhereToWatch whereToWatch = WhereToWatch.valueOf(item.whereToWatch);
+                    String whereToWatchDisplay = "📍 " + whereToWatch.getDisplayName();
+                    textWhereToWatch.setText(whereToWatchDisplay);
+                    textWhereToWatch.setVisibility(View.VISIBLE);
+                } catch (IllegalArgumentException e) {
+                    textWhereToWatch.setVisibility(View.GONE);
+                }
+            } else {
+                textWhereToWatch.setVisibility(View.GONE);
+            }
+
+            // Release date (only for Theater)
+            if (item.whereToWatch != null && WhereToWatch.THEATER.name().equals(item.whereToWatch) && item.releaseDate != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+                String formattedDate = dateFormat.format(new Date(item.releaseDate));
+                textReleaseDate.setText("🎬 Release: " + formattedDate);
+                textReleaseDate.setVisibility(View.VISIBLE);
+            } else {
+                textReleaseDate.setVisibility(View.GONE);
             }
 
             // Target date

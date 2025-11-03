@@ -26,6 +26,10 @@ public class WatchlistItem implements Serializable {
     
     public String language; // Language code (en, te, hi, etc.)
     
+    public String whereToWatch; // WhereToWatch enum name (THEATER, OTT_STREAMING, OTHER)
+    
+    public Long releaseDate; // Release date in milliseconds (for Theater only)
+    
     public WatchlistItem(@NonNull String title) {
         this.title = title;
         this.createdAt = System.currentTimeMillis();
