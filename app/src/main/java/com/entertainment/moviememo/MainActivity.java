@@ -1,5 +1,6 @@
 package com.entertainment.moviememo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +30,7 @@ import com.entertainment.moviememo.ui.watchlist.AddWatchlistFragment;
 import com.entertainment.moviememo.ui.stats.StatsFragment;
 import com.entertainment.moviememo.ui.settings.SettingsFragment;
 import com.entertainment.moviememo.ui.about.AboutFragment;
+import com.entertainment.moviememo.utils.NotificationHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,9 +55,30 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        // Create notification channel
+        NotificationHelper.createNotificationChannel(this);
+        
+        // Handle notification click navigation
+        handleNotificationIntent();
+        
         setupViewPager();
         setupFab();
         setupMenu();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNotificationIntent();
+    }
+
+    private void handleNotificationIntent() {
+        Intent intent = getIntent();
+        if (intent != null && intent.getBooleanExtra("navigate_to_watchlist", false)) {
+            // Navigate to watchlist tab (position 1)
+            binding.viewPager.setCurrentItem(1, false);
+        }
     }
 
     private void setupViewPager() {

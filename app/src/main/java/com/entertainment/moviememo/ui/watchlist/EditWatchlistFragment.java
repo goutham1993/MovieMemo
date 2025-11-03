@@ -19,6 +19,7 @@ import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.data.enums.WhereToWatch;
 import com.entertainment.moviememo.databinding.FragmentEditWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
+import com.entertainment.moviememo.utils.NotificationHelper;
 
 import java.util.Calendar;
 
@@ -232,6 +233,7 @@ public class EditWatchlistFragment extends Fragment {
         }
 
         viewModel.updateWatchlist(itemToEdit);
+        
         Toast.makeText(getContext(), "🎫 Watchlist item updated!", Toast.LENGTH_SHORT).show();
         getParentFragmentManager().popBackStack();
     }

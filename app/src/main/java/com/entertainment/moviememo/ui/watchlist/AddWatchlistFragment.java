@@ -19,6 +19,7 @@ import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.data.enums.WhereToWatch;
 import com.entertainment.moviememo.databinding.FragmentAddWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
+import com.entertainment.moviememo.utils.NotificationHelper;
 
 import java.util.Calendar;
 
@@ -153,6 +154,7 @@ public class AddWatchlistFragment extends Fragment {
         }
 
         viewModel.insertWatchlist(item);
+        
         Toast.makeText(getContext(), "🎫 Added to watchlist!", Toast.LENGTH_SHORT).show();
         getParentFragmentManager().popBackStack();
     }

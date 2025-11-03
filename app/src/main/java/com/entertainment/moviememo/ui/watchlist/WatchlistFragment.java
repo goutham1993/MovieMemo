@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.entertainment.moviememo.databinding.FragmentWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
 import com.entertainment.moviememo.ui.adapters.WatchlistAdapter;
+import com.entertainment.moviememo.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,6 +133,9 @@ public class WatchlistFragment extends Fragment {
                 adapter.submitList(watchlistItems);
                 binding.textEmptyState.setVisibility(View.GONE);
                 binding.recyclerViewWatchlist.setVisibility(View.VISIBLE);
+                
+                // Reschedule all notifications when watchlist is loaded
+                NotificationHelper.rescheduleAllNotifications(requireContext(), watchlistItems);
             } else {
                 adapter.submitList(new ArrayList<>());
                 binding.textEmptyState.setVisibility(View.VISIBLE);
