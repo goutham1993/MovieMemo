@@ -6,18 +6,19 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
 import com.entertainment.moviememo.MainActivity;
 import com.entertainment.moviememo.R;
-import com.entertainment.moviememo.data.entities.WatchlistItem;
+import com.entertainment.moviememo.data.database.AppDatabase;
+import com.entertainment.moviememo.data.entities.NotificationSettings;
 import com.entertainment.moviememo.receivers.NotificationReceiver;
 
 import java.util.Calendar;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NotificationHelper {
     
@@ -41,26 +42,26 @@ public class NotificationHelper {
         }
     }
     
-    public static void scheduleNotification(Context context, WatchlistItem item) {
-        // This method is kept for backward compatibility but will be handled by rescheduleAllNotifications
-        // Individual scheduling is not needed since we group by date
-    }
-    
-    public static void cancelNotification(Context context, WatchlistItem item) {
+    public static void cancelAllNotifications(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager == null) {
             return;
         }
         
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                (int) (NOTIFICATION_ID_BASE + item.id),
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        
-        alarmManager.cancel(pendingIntent);
+        // Cancel all possible notification IDs (using a reasonable range)
+        for (int i = 0; i < 10000; i++) {
+            Intent intent = new Intent(context, NotificationReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    NOTIFICATION_ID_BASE + i,
+                    intent,
+                    PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE
+            );
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+            }
+        }
     }
     
     public static void showNotification(Context context, String movieTitle) {
@@ -93,77 +94,63 @@ public class NotificationHelper {
         }
     }
     
-    public static void rescheduleAllNotifications(Context context, List<WatchlistItem> items) {
-        // Group items by release date (same day) - one notification per date
-        java.util.Map<Long, java.util.List<WatchlistItem>> dateGroups = new java.util.HashMap<>();
-        for (WatchlistItem item : items) {
-            if (item.releaseDate != null && item.whereToWatch != null && 
-                item.whereToWatch.equals("THEATER")) {
-                // Get the date at midnight for grouping
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(item.releaseDate);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                Long dateKey = cal.getTimeInMillis();
-                
-                if (!dateGroups.containsKey(dateKey)) {
-                    dateGroups.put(dateKey, new java.util.ArrayList<>());
-                }
-                dateGroups.get(dateKey).add(item);
+    public static void rescheduleAllNotifications(Context context) {
+        // Run database access on background thread
+        new Thread(() -> {
+            // Cancel all existing notifications
+            cancelAllNotifications(context);
+            
+            // Get notification settings from database
+            NotificationSettings settings = AppDatabase.getDatabase(context).movieDao().getNotificationSettings();
+            if (settings == null || settings.selectedDays == null || settings.selectedDays.isEmpty()) {
+                return;
             }
-        }
-        
-        // Cancel notifications for dates that will be rescheduled
-        for (Long dateKey : dateGroups.keySet()) {
-            cancelNotificationForDate(context, dateKey);
-        }
-        
-        // Schedule one notification per unique release date
-        for (java.util.Map.Entry<Long, java.util.List<WatchlistItem>> entry : dateGroups.entrySet()) {
-            WatchlistItem firstItem = entry.getValue().get(0);
-            scheduleNotificationForDate(context, entry.getKey(), firstItem);
-        }
+            
+            if (settings.notificationHour == null || settings.notificationMinute == null) {
+                return;
+            }
+            
+            // Parse selected days (0=Sunday, 1=Monday, ..., 6=Saturday)
+            String[] dayStrings = settings.selectedDays.split(",");
+            Set<Integer> selectedDays = new HashSet<>();
+            for (String dayString : dayStrings) {
+                try {
+                    selectedDays.add(Integer.parseInt(dayString.trim()));
+                } catch (NumberFormatException e) {
+                    // Skip invalid days
+                }
+            }
+            
+            // Schedule one notification per selected day (recurring weekly)
+            for (Integer dayOfWeek : selectedDays) {
+                scheduleNotificationForDay(context, dayOfWeek, settings.notificationHour, settings.notificationMinute);
+            }
+        }).start();
     }
     
-    // Helper method to cancel all notifications for a given date
-    private static void cancelNotificationForDate(Context context, Long dateAtMidnight) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager == null) {
-            return;
-        }
-        
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        int notificationId = (int) (NOTIFICATION_ID_BASE + (dateAtMidnight / (24 * 60 * 60 * 1000)) % Integer.MAX_VALUE);
-        
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                notificationId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        
-        alarmManager.cancel(pendingIntent);
-    }
-    
-    private static void scheduleNotificationForDate(Context context, Long dateAtMidnight, WatchlistItem representativeItem) {
-        SharedPreferences prefs = context.getSharedPreferences("MovieMemoPrefs", Context.MODE_PRIVATE);
-        int notificationHour = prefs.getInt("notification_hour", 9);
-        int notificationMinute = prefs.getInt("notification_minute", 0);
-        
-        // Set the notification time for that day
+    private static void scheduleNotificationForDay(Context context, int dayOfWeek, int notificationHour, int notificationMinute) {
+        // Calculate next occurrence of this day
+        Calendar now = Calendar.getInstance();
         Calendar notificationTime = Calendar.getInstance();
-        notificationTime.setTimeInMillis(dateAtMidnight);
         notificationTime.set(Calendar.HOUR_OF_DAY, notificationHour);
         notificationTime.set(Calendar.MINUTE, notificationMinute);
         notificationTime.set(Calendar.SECOND, 0);
         notificationTime.set(Calendar.MILLISECOND, 0);
         
-        // Don't schedule if the time has passed
-        if (notificationTime.before(Calendar.getInstance())) {
-            return;
+        // Convert our day format (0=Sunday, 1=Monday, ..., 6=Saturday) to Calendar format (1=Sunday, 2=Monday, ..., 7=Saturday)
+        int calendarDayOfWeek = dayOfWeek == 0 ? Calendar.SUNDAY : dayOfWeek + 1;
+        
+        // Find the next occurrence of this day
+        int daysUntilNext = (calendarDayOfWeek - notificationTime.get(Calendar.DAY_OF_WEEK) + 7) % 7;
+        if (daysUntilNext == 0) {
+            // If today is the selected day, check if time has passed
+            if (notificationTime.getTimeInMillis() <= now.getTimeInMillis()) {
+                // Time has passed today, schedule for next week
+                daysUntilNext = 7;
+            }
         }
+        
+        notificationTime.add(Calendar.DAY_OF_MONTH, daysUntilNext);
         
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager == null) {
@@ -171,8 +158,8 @@ public class NotificationHelper {
         }
         
         Intent intent = new Intent(context, NotificationReceiver.class);
-        // Use date as part of ID to ensure one notification per date
-        int notificationId = (int) (NOTIFICATION_ID_BASE + (dateAtMidnight / (24 * 60 * 60 * 1000)) % Integer.MAX_VALUE);
+        // Use day of week as part of ID to ensure one notification per day
+        int notificationId = NOTIFICATION_ID_BASE + dayOfWeek;
         
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
@@ -181,6 +168,7 @@ public class NotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
+        // Schedule recurring notification weekly
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
@@ -200,6 +188,9 @@ public class NotificationHelper {
                     pendingIntent
             );
         }
+        
+        // For recurring weekly notifications, we'll need to reschedule after each notification
+        // This is handled by rescheduling on app startup and when settings change
     }
 }
 

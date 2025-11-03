@@ -14,6 +14,7 @@ import com.entertainment.moviememo.data.entities.Genre;
 import com.entertainment.moviememo.data.entities.MonthCount;
 import com.entertainment.moviememo.data.entities.KeyCount;
 import com.entertainment.moviememo.data.entities.KeySum;
+import com.entertainment.moviememo.data.entities.NotificationSettings;
 
 import java.util.List;
 
@@ -141,4 +142,17 @@ public interface MovieDao {
 
     @Query("DELETE FROM watchlist_items")
     void clearAllWatchlist();
+    
+    // Notification Settings
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertNotificationSettings(NotificationSettings settings);
+    
+    @Update
+    int updateNotificationSettings(NotificationSettings settings);
+    
+    @Query("SELECT * FROM notification_settings WHERE id = 1")
+    NotificationSettings getNotificationSettings();
+    
+    @Query("SELECT * FROM notification_settings WHERE id = 1")
+    LiveData<NotificationSettings> getNotificationSettingsLive();
 }

@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         // Create notification channel
         NotificationHelper.createNotificationChannel(this);
         
+        // Reschedule notifications on app startup based on user-selected dates
+        NotificationHelper.rescheduleAllNotifications(this);
+        
         // Handle notification click navigation
         handleNotificationIntent();
         

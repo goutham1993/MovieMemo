@@ -10,10 +10,11 @@ public class NotificationReceiver extends BroadcastReceiver {
     
     @Override
     public void onReceive(Context context, Intent intent) {
-        String movieTitle = intent.getStringExtra("movie_title");
-        
         // Show the notification
-        NotificationHelper.showNotification(context, movieTitle);
+        NotificationHelper.showNotification(context, "Your Watchlist");
+        
+        // Reschedule all notifications to ensure they recur weekly
+        NotificationHelper.rescheduleAllNotifications(context);
     }
 }
 

@@ -133,9 +133,6 @@ public class WatchlistFragment extends Fragment {
                 adapter.submitList(watchlistItems);
                 binding.textEmptyState.setVisibility(View.GONE);
                 binding.recyclerViewWatchlist.setVisibility(View.VISIBLE);
-                
-                // Reschedule all notifications when watchlist is loaded
-                NotificationHelper.rescheduleAllNotifications(requireContext(), watchlistItems);
             } else {
                 adapter.submitList(new ArrayList<>());
                 binding.textEmptyState.setVisibility(View.VISIBLE);

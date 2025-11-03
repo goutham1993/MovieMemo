@@ -12,6 +12,7 @@ import com.entertainment.moviememo.data.entities.Genre;
 import com.entertainment.moviememo.data.entities.MonthCount;
 import com.entertainment.moviememo.data.entities.KeyCount;
 import com.entertainment.moviememo.data.entities.KeySum;
+import com.entertainment.moviememo.data.entities.NotificationSettings;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -187,5 +188,22 @@ public class MovieRepository {
 
     public void clearAllWatchlist() {
         executor.execute(() -> movieDao.clearAllWatchlist());
+    }
+    
+    // Notification Settings
+    public void insertNotificationSettings(NotificationSettings settings) {
+        executor.execute(() -> movieDao.insertNotificationSettings(settings));
+    }
+    
+    public void updateNotificationSettings(NotificationSettings settings) {
+        executor.execute(() -> movieDao.updateNotificationSettings(settings));
+    }
+    
+    public NotificationSettings getNotificationSettings() {
+        return movieDao.getNotificationSettings();
+    }
+    
+    public LiveData<NotificationSettings> getNotificationSettingsLive() {
+        return movieDao.getNotificationSettingsLive();
     }
 }

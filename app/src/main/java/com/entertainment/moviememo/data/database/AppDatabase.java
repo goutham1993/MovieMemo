@@ -12,10 +12,11 @@ import com.entertainment.moviememo.data.dao.MovieDao;
 import com.entertainment.moviememo.data.entities.WatchedEntry;
 import com.entertainment.moviememo.data.entities.WatchlistItem;
 import com.entertainment.moviememo.data.entities.Genre;
+import com.entertainment.moviememo.data.entities.NotificationSettings;
 
 @Database(
-    entities = {WatchedEntry.class, WatchlistItem.class, Genre.class},
-    version = 5,
+    entities = {WatchedEntry.class, WatchlistItem.class, Genre.class, NotificationSettings.class},
+    version = 7,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -33,7 +34,7 @@ public abstract class AppDatabase extends RoomDatabase {
                         AppDatabase.class,
                         "movie_memo_database"
                     )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     .addCallback(new RoomDatabase.Callback() {
                         @Override
                         public void onCreate(SupportSQLiteDatabase db) {
@@ -111,6 +112,28 @@ public abstract class AppDatabase extends RoomDatabase {
             // Add streamingPlatform column to watched_entries table
             database.execSQL("ALTER TABLE watched_entries ADD COLUMN streamingPlatform TEXT");
             // Existing records will have NULL values, which is fine
+        }
+    };
+    
+    // Migration from version 5 to 6: Add notification_settings table
+    static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Create notification_settings table
+            database.execSQL("CREATE TABLE IF NOT EXISTS notification_settings (" +
+                    "id INTEGER PRIMARY KEY NOT NULL, " +
+                    "selectedDates TEXT, " +
+                    "notificationHour INTEGER, " +
+                    "notificationMinute INTEGER)");
+        }
+    };
+    
+    // Migration from version 6 to 7: Rename selectedDates to selectedDays for day-of-week selection
+    static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // Rename selectedDates to selectedDays
+            database.execSQL("ALTER TABLE notification_settings RENAME COLUMN selectedDates TO selectedDays");
         }
     };
 }
