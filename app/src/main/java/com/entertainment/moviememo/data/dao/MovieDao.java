@@ -155,4 +155,17 @@ public interface MovieDao {
     
     @Query("SELECT * FROM notification_settings WHERE id = 1")
     LiveData<NotificationSettings> getNotificationSettingsLive();
+    
+    // Synchronous methods for export/import
+    @Query("SELECT * FROM watched_entries ORDER BY watchedDate DESC, id DESC")
+    List<WatchedEntry> getAllWatchedSync();
+    
+    @Query("SELECT * FROM watchlist_items ORDER BY createdAt DESC")
+    List<WatchlistItem> getAllWatchlistSync();
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertWatchedBulk(List<WatchedEntry> entries);
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertWatchlistBulk(List<WatchlistItem> items);
 }

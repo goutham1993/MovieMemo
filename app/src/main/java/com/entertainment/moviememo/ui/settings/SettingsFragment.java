@@ -2,6 +2,8 @@ package com.entertainment.moviememo.ui.settings;
 
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.entertainment.moviememo.data.database.AppDatabase;
 import com.entertainment.moviememo.data.entities.NotificationSettings;
 import com.entertainment.moviememo.databinding.FragmentSettingsBinding;
+import com.entertainment.moviememo.utils.ExportImportHelper;
 import com.entertainment.moviememo.utils.NotificationHelper;
 import com.entertainment.moviememo.viewmodels.WatchedViewModel;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
@@ -25,6 +28,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SettingsFragment extends Fragment {
+
+    private static final int REQUEST_CODE_IMPORT_JSON = 1001;
+    private static final int REQUEST_CODE_IMPORT_CSV = 1002;
 
     private FragmentSettingsBinding binding;
     private WatchedViewModel watchedViewModel;
@@ -114,6 +120,12 @@ public class SettingsFragment extends Fragment {
         
         binding.buttonNotificationTime.setOnClickListener(v -> showNotificationTimePicker());
         
+        // Export/Import buttons
+        binding.buttonExportJson.setOnClickListener(v -> exportToJson());
+        binding.buttonExportCsv.setOnClickListener(v -> exportToCsv());
+        binding.buttonImportJson.setOnClickListener(v -> importFromJson());
+        binding.buttonImportCsv.setOnClickListener(v -> importFromCsv());
+        
         // Day checkbox listeners
         binding.checkboxMonday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
         binding.checkboxTuesday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
@@ -201,5 +213,132 @@ public class SettingsFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void exportToJson() {
+        new Thread(() -> {
+            ExportImportHelper.ExportResult result = ExportImportHelper.exportToJson(requireContext());
+            requireActivity().runOnUiThread(() -> {
+                if (result.success) {
+                    showExportSuccessDialog("JSON", result.filePath);
+                } else {
+                    Toast.makeText(getContext(), "❌ Export failed: " + result.errorMessage, Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
+    }
+
+    private void exportToCsv() {
+        new Thread(() -> {
+            ExportImportHelper.ExportResult result = ExportImportHelper.exportToCsv(requireContext());
+            requireActivity().runOnUiThread(() -> {
+                if (result.success) {
+                    showExportSuccessDialog("CSV", result.filePath);
+                } else {
+                    Toast.makeText(getContext(), "❌ Export failed: " + result.errorMessage, Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
+    }
+
+    private void showExportSuccessDialog(String format, String filePath) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("✅ Export Successful")
+                .setMessage("Data exported to " + format + " successfully!\n\nFile: " + filePath)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void importFromJson() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        String[] mimeTypes = {"application/json", "text/*"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        startActivityForResult(Intent.createChooser(intent, "Select JSON file"), REQUEST_CODE_IMPORT_JSON);
+    }
+
+    private void importFromCsv() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        String[] mimeTypes = {"text/csv", "text/*"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        startActivityForResult(Intent.createChooser(intent, "Select CSV file"), REQUEST_CODE_IMPORT_CSV);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (data == null || data.getData() == null) {
+            return;
+        }
+        
+        Uri uri = data.getData();
+        String filePath = uri.getPath();
+        
+        // Handle different URI schemes
+        if (uri.getScheme().equals("content")) {
+            // For content:// URIs, we need to read the file differently
+            try {
+                java.io.InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+                if (inputStream == null) {
+                    Toast.makeText(getContext(), "❌ Unable to open file", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                // Create a temporary file to read from
+                java.io.File tempFile = new java.io.File(requireContext().getCacheDir(), "temp_import_" + System.currentTimeMillis() + 
+                    (requestCode == REQUEST_CODE_IMPORT_JSON ? ".json" : ".csv"));
+                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile)) {
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        fos.write(buffer, 0, bytesRead);
+                    }
+                }
+                filePath = tempFile.getAbsolutePath();
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "❌ Error reading file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+        
+        if (requestCode == REQUEST_CODE_IMPORT_JSON) {
+            importJsonFile(filePath);
+        } else if (requestCode == REQUEST_CODE_IMPORT_CSV) {
+            importCsvFile(filePath);
+        }
+    }
+
+    private void importJsonFile(String filePath) {
+        new Thread(() -> {
+            ExportImportHelper.ImportResult result = ExportImportHelper.importFromJson(requireContext(), filePath);
+            requireActivity().runOnUiThread(() -> {
+                if (result.success) {
+                    Toast.makeText(getContext(), 
+                        "✅ Import successful!\nWatched: " + result.watchedCount + "\nWatchlist: " + result.watchlistCount, 
+                        Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "❌ Import failed: " + result.errorMessage, Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
+    }
+
+    private void importCsvFile(String filePath) {
+        new Thread(() -> {
+            ExportImportHelper.ImportResult result = ExportImportHelper.importFromCsv(requireContext(), filePath);
+            requireActivity().runOnUiThread(() -> {
+                if (result.success) {
+                    Toast.makeText(getContext(), 
+                        "✅ Import successful!\nWatched: " + result.watchedCount + "\nWatchlist: " + result.watchlistCount, 
+                        Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), "❌ Import failed: " + result.errorMessage, Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
     }
 }
