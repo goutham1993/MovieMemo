@@ -222,24 +222,10 @@ public class WatchedEntryAdapter extends ListAdapter<WatchedEntry, WatchedEntryA
                 textStreamingPlatform.setVisibility(View.GONE);
             }
 
-            // Notes - position it after whichever field is visible
+            // Notes - positioned below barrier that includes theater/streaming platform
             if (entry.notes != null && !entry.notes.isEmpty()) {
                 textNotes.setText("💭 " + entry.notes);
                 textNotes.setVisibility(View.VISIBLE);
-                // Position notes below whichever info is visible
-                android.view.ViewGroup.LayoutParams params = textNotes.getLayoutParams();
-                if (params instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-                    androidx.constraintlayout.widget.ConstraintLayout.LayoutParams constraintParams = 
-                        (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) params;
-                    if (theaterInfoVisible) {
-                        constraintParams.topToBottom = R.id.text_theater_info;
-                    } else if (streamingPlatformVisible) {
-                        constraintParams.topToBottom = R.id.text_streaming_platform;
-                    } else {
-                        constraintParams.topToBottom = R.id.text_language;
-                    }
-                    textNotes.setLayoutParams(constraintParams);
-                }
             } else {
                 textNotes.setVisibility(View.GONE);
             }

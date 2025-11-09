@@ -84,9 +84,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:layout_marginEnd="8dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toStartOf="@+id/layout_duration_spend"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_movie_title"
             tools:text="Watched on Dec 15, 2024" />
@@ -96,10 +99,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:layout_marginEnd="8dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
+            android:maxLines="2"
+            android:ellipsize="end"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/layout_duration_spend"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_watched_date"
             tools:text="👥 with Alice, Bob, and Sarah"
@@ -110,10 +116,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:layout_marginEnd="8dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/layout_duration_spend"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_companions"
             tools:text="🌐 English"
@@ -141,31 +150,19 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/text_notes"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="14sp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_streaming_platform"
-            tools:text="Great movie with amazing action sequences!"
-            tools:visibility="visible" />
-
-        <TextView
             android:id="@+id/text_theater_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginEnd="8dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/layout_duration_spend"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_language"
             tools:text="📍 at Cinemark, Dallas"
@@ -176,25 +173,61 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginEnd="8dp"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/layout_duration_spend"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_language"
             tools:text="📺 Watched on Prime Video"
             tools:visibility="visible" />
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_before_notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="text_theater_info,text_streaming_platform" />
+
+        <TextView
+            android:id="@+id/text_notes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier_before_notes"
+            tools:text="Great movie with amazing action sequences!"
+            tools:visibility="visible" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_before_chips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="text_theater_info,text_streaming_platform,text_notes" />
+
         <LinearLayout
             android:id="@+id/layout_chips"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal"
+            android:baselineAligned="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_notes">
+            app:layout_constraintTop_toBottomOf="@+id/barrier_before_chips">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_genre"
@@ -202,11 +235,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
+                android:maxWidth="120dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textSize="12sp"
                 android:clickable="false"
                 android:focusable="false"
+                android:visibility="gone"
                 app:chipCornerRadius="12dp"
-                tools:text="Action" />
+                tools:text="Action"
+                tools:visibility="visible" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_location"
@@ -214,22 +252,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
+                android:maxWidth="120dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textSize="12sp"
                 android:clickable="false"
                 android:focusable="false"
+                android:visibility="gone"
                 app:chipCornerRadius="12dp"
-                tools:text="🏠 Home" />
+                tools:text="🏠 Home"
+                tools:visibility="visible" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_time"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="120dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textSize="12sp"
                 android:clickable="false"
                 android:focusable="false"
+                android:visibility="gone"
                 app:chipCornerRadius="12dp"
-                tools:text="Night" />
+                tools:text="Night"
+                tools:visibility="visible" />
 
         </LinearLayout>
 
