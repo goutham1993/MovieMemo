@@ -2,10 +2,12 @@ package com.entertainment.moviememo.ui.watchlist;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,13 +17,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.data.entities.WatchlistItem;
+import com.entertainment.moviememo.data.entities.WatchedEntry;
 import com.entertainment.moviememo.data.enums.Language;
 import com.entertainment.moviememo.data.enums.WhereToWatch;
 import com.entertainment.moviememo.databinding.FragmentEditWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
+import com.entertainment.moviememo.viewmodels.WatchedViewModel;
 import com.entertainment.moviememo.utils.NotificationHelper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class EditWatchlistFragment extends Fragment {
 
@@ -53,6 +59,7 @@ public class EditWatchlistFragment extends Fragment {
 
         // Setup spinners first before populating form
         setupSpinners();
+        setupOttPlatformAutocomplete();
         loadItemData();
         setupWhereToWatchListener();
         setupReleaseDateToggle();
@@ -106,6 +113,16 @@ public class EditWatchlistFragment extends Fragment {
                 WhereToWatch whereToWatch = WhereToWatch.valueOf(itemToEdit.whereToWatch);
                 int whereToWatchIndex = whereToWatch.ordinal();
                 binding.spinnerWhereToWatch.setSelection(whereToWatchIndex);
+                
+                // Show OTT platform field if OTT Streaming is selected
+                if (whereToWatch == WhereToWatch.OTT_STREAMING) {
+                    binding.layoutOttPlatform.setVisibility(View.VISIBLE);
+                    if (itemToEdit.streamingPlatform != null) {
+                        binding.editOttPlatform.setText(itemToEdit.streamingPlatform);
+                    }
+                } else {
+                    binding.layoutOttPlatform.setVisibility(View.GONE);
+                }
             } catch (IllegalArgumentException e) {
                 binding.spinnerWhereToWatch.setSelection(0); // Default to Theater
             }
@@ -150,18 +167,68 @@ public class EditWatchlistFragment extends Fragment {
         binding.spinnerWhereToWatch.setAdapter(whereToWatchAdapter);
     }
 
+    private void setupOttPlatformAutocomplete() {
+        // Get all previous streaming platforms from watched entries and watchlist items
+        WatchedViewModel watchedViewModel = new ViewModelProvider(this).get(WatchedViewModel.class);
+        watchedViewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
+            List<String> platforms = new ArrayList<>();
+            // Add common streaming platforms as defaults
+            platforms.add("Netflix");
+            platforms.add("Prime Video");
+            platforms.add("Disney+");
+            platforms.add("Hulu");
+            platforms.add("HBO Max");
+            platforms.add("Paramount+");
+            platforms.add("Apple TV+");
+            platforms.add("Peacock");
+            platforms.add("YouTube");
+            platforms.add("Crunchyroll");
+            
+            for (WatchedEntry entry : entries) {
+                if (entry.streamingPlatform != null && !entry.streamingPlatform.trim().isEmpty()) {
+                    String trimmed = entry.streamingPlatform.trim();
+                    if (!platforms.contains(trimmed)) {
+                        platforms.add(trimmed);
+                    }
+                }
+            }
+            
+            // Also get from watchlist items
+            viewModel.getAllWatchlist().observe(getViewLifecycleOwner(), watchlistItems -> {
+                for (WatchlistItem item : watchlistItems) {
+                    if (item.streamingPlatform != null && !item.streamingPlatform.trim().isEmpty()) {
+                        String trimmed = item.streamingPlatform.trim();
+                        if (!platforms.contains(trimmed)) {
+                            platforms.add(trimmed);
+                        }
+                    }
+                }
+                
+                // Set up the autocomplete adapter
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
+                    R.layout.autocomplete_item, platforms);
+                binding.editOttPlatform.setAdapter(adapter);
+            });
+        });
+    }
+
     private void setupWhereToWatchListener() {
-        // Release date is now available for all "where to watch" options
-        // No need to show/hide based on selection
         binding.spinnerWhereToWatch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // Release date UI is always visible for all options
+                WhereToWatch selected = WhereToWatch.values()[position];
+                // Show OTT platform field only when OTT Streaming is selected
+                if (selected == WhereToWatch.OTT_STREAMING) {
+                    binding.layoutOttPlatform.setVisibility(View.VISIBLE);
+                } else {
+                    binding.layoutOttPlatform.setVisibility(View.GONE);
+                    binding.editOttPlatform.setText("");
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // No action needed
+                binding.layoutOttPlatform.setVisibility(View.GONE);
             }
         });
     }
@@ -217,6 +284,18 @@ public class EditWatchlistFragment extends Fragment {
         // Where to watch
         WhereToWatch whereToWatch = WhereToWatch.values()[binding.spinnerWhereToWatch.getSelectedItemPosition()];
         itemToEdit.whereToWatch = whereToWatch.name();
+        
+        // Streaming platform (only for OTT Streaming)
+        if (whereToWatch == WhereToWatch.OTT_STREAMING) {
+            String streamingPlatform = binding.editOttPlatform.getText().toString().trim();
+            if (!TextUtils.isEmpty(streamingPlatform)) {
+                itemToEdit.streamingPlatform = streamingPlatform;
+            } else {
+                itemToEdit.streamingPlatform = null;
+            }
+        } else {
+            itemToEdit.streamingPlatform = null;
+        }
         
         // Release date (available for all options if switch is on)
         if (binding.switchReleaseDate.isChecked() && selectedReleaseDate != null) {

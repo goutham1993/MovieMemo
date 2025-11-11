@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapter.WatchlistViewHolder> {
 
@@ -56,7 +57,9 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
         private TextView textNotes;
         private TextView textLanguage;
         private TextView textWhereToWatch;
+        private TextView textOttPlatform;
         private TextView textReleaseDate;
+        private TextView textRemainingDays;
         private TextView textTargetDate;
 
         public WatchlistViewHolder(@NonNull View itemView) {
@@ -65,7 +68,9 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
             textNotes = itemView.findViewById(R.id.text_notes);
             textLanguage = itemView.findViewById(R.id.text_language);
             textWhereToWatch = itemView.findViewById(R.id.text_where_to_watch);
+            textOttPlatform = itemView.findViewById(R.id.text_ott_platform);
             textReleaseDate = itemView.findViewById(R.id.text_release_date);
+            textRemainingDays = itemView.findViewById(R.id.text_remaining_days);
             textTargetDate = itemView.findViewById(R.id.text_target_date);
 
             itemView.setOnClickListener(v -> {
@@ -115,9 +120,10 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
             }
 
             // Where to watch
+            WhereToWatch whereToWatch = null;
             if (item.whereToWatch != null && !item.whereToWatch.isEmpty()) {
                 try {
-                    WhereToWatch whereToWatch = WhereToWatch.valueOf(item.whereToWatch);
+                    whereToWatch = WhereToWatch.valueOf(item.whereToWatch);
                     String whereToWatchDisplay = "📍 " + whereToWatch.getDisplayName();
                     textWhereToWatch.setText(whereToWatchDisplay);
                     textWhereToWatch.setVisibility(View.VISIBLE);
@@ -128,14 +134,45 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
                 textWhereToWatch.setVisibility(View.GONE);
             }
 
+            // OTT Platform (only for OTT Streaming)
+            if (whereToWatch == WhereToWatch.OTT_STREAMING && item.streamingPlatform != null && !item.streamingPlatform.trim().isEmpty()) {
+                textOttPlatform.setText("📺 " + item.streamingPlatform.trim());
+                textOttPlatform.setVisibility(View.VISIBLE);
+            } else {
+                textOttPlatform.setVisibility(View.GONE);
+            }
+
             // Release date (available for all options)
             if (item.releaseDate != null) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
                 String formattedDate = dateFormat.format(new Date(item.releaseDate));
                 textReleaseDate.setText("🎬 Release: " + formattedDate);
                 textReleaseDate.setVisibility(View.VISIBLE);
+                
+                long currentTime = System.currentTimeMillis();
+                // For OTT Streaming with past release date, show "Ready to watch now"
+                if (whereToWatch == WhereToWatch.OTT_STREAMING && item.releaseDate <= currentTime) {
+                    textRemainingDays.setText("✅ Ready to watch now!");
+                    textRemainingDays.setVisibility(View.VISIBLE);
+                } else if (item.releaseDate > currentTime) {
+                    // Calculate and show remaining days if release date is in the future
+                    long diffInMillis = item.releaseDate - currentTime;
+                    long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffInMillis);
+                    
+                    if (daysRemaining == 0) {
+                        textRemainingDays.setText("⏰ Releases today!");
+                    } else if (daysRemaining == 1) {
+                        textRemainingDays.setText("⏰ 1 day remaining");
+                    } else {
+                        textRemainingDays.setText("⏰ " + daysRemaining + " days remaining");
+                    }
+                    textRemainingDays.setVisibility(View.VISIBLE);
+                } else {
+                    textRemainingDays.setVisibility(View.GONE);
+                }
             } else {
                 textReleaseDate.setVisibility(View.GONE);
+                textRemainingDays.setVisibility(View.GONE);
             }
 
             // Target date

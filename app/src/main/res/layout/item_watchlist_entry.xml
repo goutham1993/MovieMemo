@@ -70,18 +70,56 @@
             tools:visibility="visible" />
 
         <TextView
-            android:id="@+id/text_release_date"
+            android:id="@+id/text_ott_platform"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"
-            android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_where_to_watch"
+            tools:text="📺 Netflix"
+            tools:visibility="visible" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_before_release_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="text_where_to_watch,text_ott_platform" />
+
+        <TextView
+            android:id="@+id/text_release_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/text_remaining_days"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier_before_release_date"
             tools:text="🎬 Release: Dec 25, 2024"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/text_remaining_days"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/text_release_date"
+            app:layout_constraintBottom_toBottomOf="@+id/text_release_date"
+            tools:text="⏰ 15 days remaining"
             tools:visibility="visible" />
 
         <TextView

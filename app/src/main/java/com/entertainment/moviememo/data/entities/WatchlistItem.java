@@ -28,7 +28,9 @@ public class WatchlistItem implements Serializable {
     
     public String whereToWatch; // WhereToWatch enum name (THEATER, OTT_STREAMING, OTHER)
     
-    public Long releaseDate; // Release date in milliseconds (for Theater only)
+    public Long releaseDate; // Release date in milliseconds
+    
+    public String streamingPlatform; // Streaming platform when whereToWatch is OTT_STREAMING
     
     public WatchlistItem(@NonNull String title) {
         this.title = title;

@@ -95,6 +95,34 @@
             android:layout_marginBottom="16dp" />
 
         <LinearLayout
+            android:id="@+id/layout_ott_platform"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Rounded">
+
+                <android.widget.AutoCompleteTextView
+                    android:id="@+id/edit_ott_platform"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:hint="📺 OTT Platform (optional)"
+                    android:inputType="textCapSentences"
+                    android:completionThreshold="1"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textColorHint="?attr/colorOnSurfaceVariant"
+                    android:textSize="16sp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/layout_theater_release_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
