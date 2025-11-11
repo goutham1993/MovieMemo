@@ -58,6 +58,7 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
         private TextView textLanguage;
         private TextView textWhereToWatch;
         private TextView textOttPlatform;
+        private View layoutReleaseInfo;
         private TextView textReleaseDate;
         private TextView textRemainingDays;
         private TextView textTargetDate;
@@ -69,6 +70,7 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
             textLanguage = itemView.findViewById(R.id.text_language);
             textWhereToWatch = itemView.findViewById(R.id.text_where_to_watch);
             textOttPlatform = itemView.findViewById(R.id.text_ott_platform);
+            layoutReleaseInfo = itemView.findViewById(R.id.layout_release_info);
             textReleaseDate = itemView.findViewById(R.id.text_release_date);
             textRemainingDays = itemView.findViewById(R.id.text_remaining_days);
             textTargetDate = itemView.findViewById(R.id.text_target_date);
@@ -142,17 +144,18 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
                 textOttPlatform.setVisibility(View.GONE);
             }
 
-            // Release date (available for all options)
+            // Release date (available for all options) - shown on the right side
             if (item.releaseDate != null) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
                 String formattedDate = dateFormat.format(new Date(item.releaseDate));
-                textReleaseDate.setText("🎬 Release: " + formattedDate);
+                textReleaseDate.setText("🎬 " + formattedDate);
                 textReleaseDate.setVisibility(View.VISIBLE);
+                layoutReleaseInfo.setVisibility(View.VISIBLE);
                 
                 long currentTime = System.currentTimeMillis();
                 // For OTT Streaming with past release date, show "Ready to watch now"
                 if (whereToWatch == WhereToWatch.OTT_STREAMING && item.releaseDate <= currentTime) {
-                    textRemainingDays.setText("✅ Ready to watch now!");
+                    textRemainingDays.setText("✅ Ready now");
                     textRemainingDays.setVisibility(View.VISIBLE);
                 } else if (item.releaseDate > currentTime) {
                     // Calculate and show remaining days if release date is in the future
@@ -160,17 +163,18 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
                     long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffInMillis);
                     
                     if (daysRemaining == 0) {
-                        textRemainingDays.setText("⏰ Releases today!");
+                        textRemainingDays.setText("⏰ Today");
                     } else if (daysRemaining == 1) {
-                        textRemainingDays.setText("⏰ 1 day remaining");
+                        textRemainingDays.setText("⏰ 1 day");
                     } else {
-                        textRemainingDays.setText("⏰ " + daysRemaining + " days remaining");
+                        textRemainingDays.setText("⏰ " + daysRemaining + " days");
                     }
                     textRemainingDays.setVisibility(View.VISIBLE);
                 } else {
                     textRemainingDays.setVisibility(View.GONE);
                 }
             } else {
+                layoutReleaseInfo.setVisibility(View.GONE);
                 textReleaseDate.setVisibility(View.GONE);
                 textRemainingDays.setVisibility(View.GONE);
             }
