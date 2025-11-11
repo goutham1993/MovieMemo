@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.entertainment.moviememo.databinding.FragmentWatchlistBinding;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
 import com.entertainment.moviememo.ui.adapters.WatchlistAdapter;
+import com.entertainment.moviememo.data.enums.WhereToWatch;
 import com.entertainment.moviememo.utils.NotificationHelper;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class WatchlistFragment extends Fragment {
     private FragmentWatchlistBinding binding;
     private WatchlistViewModel viewModel;
     private WatchlistAdapter adapter;
+    private String currentFilter = "ALL"; // ALL, THEATER, OTT_STREAMING
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -42,6 +44,7 @@ public class WatchlistFragment extends Fragment {
         setupViewModel();
         setupRecyclerView();
         setupSearch();
+        setupFilters();
         observeData();
     }
 
@@ -85,7 +88,12 @@ public class WatchlistFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String query = s.toString().trim();
                 if (query.isEmpty()) {
-                    observeData(); // Show all data
+                    // When search is cleared, respect the current filter
+                    if (currentFilter.equals("ALL")) {
+                        observeData();
+                    } else {
+                        filterByWhereToWatch(currentFilter);
+                    }
                 } else {
                     searchWatchlist(query);
                 }
@@ -96,26 +104,107 @@ public class WatchlistFragment extends Fragment {
         });
     }
 
+    private void setupFilters() {
+        // Set initial state - All button selected
+        updateFilterButtons("ALL");
+        
+        binding.buttonFilterAll.setOnClickListener(v -> {
+            currentFilter = "ALL";
+            updateFilterButtons("ALL");
+            observeData();
+        });
+        
+        binding.buttonFilterTheater.setOnClickListener(v -> {
+            currentFilter = "THEATER";
+            updateFilterButtons("THEATER");
+            filterByWhereToWatch(WhereToWatch.THEATER.name());
+        });
+        
+        binding.buttonFilterOtt.setOnClickListener(v -> {
+            currentFilter = "OTT_STREAMING";
+            updateFilterButtons("OTT_STREAMING");
+            filterByWhereToWatch(WhereToWatch.OTT_STREAMING.name());
+        });
+    }
+    
+    private void updateFilterButtons(String selectedFilter) {
+        // Reset all buttons to unselected state
+        binding.buttonFilterAll.setSelected(false);
+        binding.buttonFilterTheater.setSelected(false);
+        binding.buttonFilterOtt.setSelected(false);
+        
+        // Set selected button
+        switch (selectedFilter) {
+            case "ALL":
+                binding.buttonFilterAll.setSelected(true);
+                break;
+            case "THEATER":
+                binding.buttonFilterTheater.setSelected(true);
+                break;
+            case "OTT_STREAMING":
+                binding.buttonFilterOtt.setSelected(true);
+                break;
+        }
+    }
+    
+    private void filterByWhereToWatch(String whereToWatch) {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.recyclerViewWatchlist.setVisibility(View.GONE);
+        binding.textEmptyState.setVisibility(View.GONE);
+        
+        viewModel.getAllWatchlist().observe(getViewLifecycleOwner(), watchlistItems -> {
+            binding.progressBar.setVisibility(View.GONE);
+            
+            if (watchlistItems != null) {
+                List<com.entertainment.moviememo.data.entities.WatchlistItem> filteredItems = new ArrayList<>();
+                for (com.entertainment.moviememo.data.entities.WatchlistItem item : watchlistItems) {
+                    if (item.whereToWatch != null && item.whereToWatch.equals(whereToWatch)) {
+                        filteredItems.add(item);
+                    }
+                }
+                
+                if (!filteredItems.isEmpty()) {
+                    adapter.submitList(filteredItems);
+                    binding.textEmptyState.setVisibility(View.GONE);
+                    binding.recyclerViewWatchlist.setVisibility(View.VISIBLE);
+                } else {
+                    adapter.submitList(new ArrayList<>());
+                    String filterName = whereToWatch.equals(WhereToWatch.THEATER.name()) ? "theater" : "OTT/Streaming";
+                    binding.textEmptyState.setText("No movies in watchlist for " + filterName);
+                    binding.textEmptyState.setVisibility(View.VISIBLE);
+                    binding.recyclerViewWatchlist.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
     private void searchWatchlist(String query) {
         viewModel.getAllWatchlist().observe(getViewLifecycleOwner(), watchlistItems -> {
             if (watchlistItems != null) {
                 List<com.entertainment.moviememo.data.entities.WatchlistItem> filteredItems = new ArrayList<>();
                 for (com.entertainment.moviememo.data.entities.WatchlistItem item : watchlistItems) {
-                    if (item.title.toLowerCase().contains(query.toLowerCase()) ||
-                        (item.notes != null && item.notes.toLowerCase().contains(query.toLowerCase()))) {
+                    // Check if item matches search query
+                    boolean matchesSearch = item.title.toLowerCase().contains(query.toLowerCase()) ||
+                        (item.notes != null && item.notes.toLowerCase().contains(query.toLowerCase()));
+                    
+                    // Check if item matches current filter
+                    boolean matchesFilter = currentFilter.equals("ALL") ||
+                        (item.whereToWatch != null && item.whereToWatch.equals(currentFilter));
+                    
+                    if (matchesSearch && matchesFilter) {
                         filteredItems.add(item);
                     }
                 }
                 
-                        if (!filteredItems.isEmpty()) {
-                            adapter.submitList(filteredItems);
-                            binding.textEmptyState.setVisibility(View.GONE);
-                            binding.recyclerViewWatchlist.setVisibility(View.VISIBLE);
-                        } else {
-                            binding.textEmptyState.setText("No watchlist items found matching \"" + query + "\"");
-                            binding.textEmptyState.setVisibility(View.VISIBLE);
-                            binding.recyclerViewWatchlist.setVisibility(View.GONE);
-                        }
+                if (!filteredItems.isEmpty()) {
+                    adapter.submitList(filteredItems);
+                    binding.textEmptyState.setVisibility(View.GONE);
+                    binding.recyclerViewWatchlist.setVisibility(View.VISIBLE);
+                } else {
+                    binding.textEmptyState.setText("No watchlist items found matching \"" + query + "\"");
+                    binding.textEmptyState.setVisibility(View.VISIBLE);
+                    binding.recyclerViewWatchlist.setVisibility(View.GONE);
+                }
             }
         });
     }
