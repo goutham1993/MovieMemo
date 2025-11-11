@@ -128,8 +128,8 @@ public class WatchlistAdapter extends ListAdapter<WatchlistItem, WatchlistAdapte
                 textWhereToWatch.setVisibility(View.GONE);
             }
 
-            // Release date (only for Theater)
-            if (item.whereToWatch != null && WhereToWatch.THEATER.name().equals(item.whereToWatch) && item.releaseDate != null) {
+            // Release date (available for all options)
+            if (item.releaseDate != null) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
                 String formattedDate = dateFormat.format(new Date(item.releaseDate));
                 textReleaseDate.setText("🎬 Release: " + formattedDate);

@@ -51,11 +51,15 @@ public class EditWatchlistFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(WatchlistViewModel.class);
         selectedReleaseDate = null;
 
-        loadItemData();
+        // Setup spinners first before populating form
         setupSpinners();
+        loadItemData();
         setupWhereToWatchListener();
         setupReleaseDateToggle();
         setupReleaseDatePicker();
+        
+        // Make sure release date UI is visible (available for all options)
+        binding.layoutTheaterReleaseDate.setVisibility(View.VISIBLE);
         binding.buttonSave.setOnClickListener(v -> updateWatchlistItem());
         binding.buttonCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
         binding.buttonDelete.setOnClickListener(v -> deleteWatchlistItem());
@@ -102,25 +106,21 @@ public class EditWatchlistFragment extends Fragment {
                 WhereToWatch whereToWatch = WhereToWatch.valueOf(itemToEdit.whereToWatch);
                 int whereToWatchIndex = whereToWatch.ordinal();
                 binding.spinnerWhereToWatch.setSelection(whereToWatchIndex);
-                
-                // Show/hide theater release date UI based on selection
-                if (whereToWatch == WhereToWatch.THEATER) {
-                    binding.layoutTheaterReleaseDate.setVisibility(View.VISIBLE);
-                    // Set release date if exists
-                    if (itemToEdit.releaseDate != null) {
-                        binding.switchReleaseDate.setChecked(true);
-                        binding.buttonReleaseDate.setEnabled(true);
-                        selectedReleaseDate = Calendar.getInstance();
-                        selectedReleaseDate.setTimeInMillis(itemToEdit.releaseDate);
-                        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
-                        binding.buttonReleaseDate.setText("📅 " + dateFormat.format(selectedReleaseDate.getTime()));
-                    }
-                }
             } catch (IllegalArgumentException e) {
                 binding.spinnerWhereToWatch.setSelection(0); // Default to Theater
             }
         } else {
             binding.spinnerWhereToWatch.setSelection(0); // Default to Theater
+        }
+        
+        // Set release date if exists (available for all options)
+        if (itemToEdit.releaseDate != null) {
+            binding.switchReleaseDate.setChecked(true);
+            binding.buttonReleaseDate.setEnabled(true);
+            selectedReleaseDate = Calendar.getInstance();
+            selectedReleaseDate.setTimeInMillis(itemToEdit.releaseDate);
+            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
+            binding.buttonReleaseDate.setText("📅 " + dateFormat.format(selectedReleaseDate.getTime()));
         }
     }
 
@@ -151,24 +151,17 @@ public class EditWatchlistFragment extends Fragment {
     }
 
     private void setupWhereToWatchListener() {
+        // Release date is now available for all "where to watch" options
+        // No need to show/hide based on selection
         binding.spinnerWhereToWatch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                WhereToWatch selected = WhereToWatch.values()[position];
-                if (selected == WhereToWatch.THEATER) {
-                    binding.layoutTheaterReleaseDate.setVisibility(View.VISIBLE);
-                } else {
-                    binding.layoutTheaterReleaseDate.setVisibility(View.GONE);
-                    binding.switchReleaseDate.setChecked(false);
-                    binding.buttonReleaseDate.setEnabled(false);
-                    binding.buttonReleaseDate.setText("📅 Select Release Date");
-                    selectedReleaseDate = null;
-                }
+                // Release date UI is always visible for all options
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                binding.layoutTheaterReleaseDate.setVisibility(View.GONE);
+                // No action needed
             }
         });
     }
@@ -225,8 +218,8 @@ public class EditWatchlistFragment extends Fragment {
         WhereToWatch whereToWatch = WhereToWatch.values()[binding.spinnerWhereToWatch.getSelectedItemPosition()];
         itemToEdit.whereToWatch = whereToWatch.name();
         
-        // Release date (only if Theater and switch is on)
-        if (whereToWatch == WhereToWatch.THEATER && binding.switchReleaseDate.isChecked() && selectedReleaseDate != null) {
+        // Release date (available for all options if switch is on)
+        if (binding.switchReleaseDate.isChecked() && selectedReleaseDate != null) {
             itemToEdit.releaseDate = selectedReleaseDate.getTimeInMillis();
         } else {
             itemToEdit.releaseDate = null;

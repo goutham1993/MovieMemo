@@ -47,6 +47,9 @@ public class AddWatchlistFragment extends Fragment {
         setupWhereToWatchListener();
         setupReleaseDateToggle();
         setupReleaseDatePicker();
+        
+        // Make sure release date UI is visible (available for all options)
+        binding.layoutTheaterReleaseDate.setVisibility(View.VISIBLE);
         binding.buttonSave.setOnClickListener(v -> saveWatchlistItem());
         binding.buttonCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
     }
@@ -74,24 +77,17 @@ public class AddWatchlistFragment extends Fragment {
     }
 
     private void setupWhereToWatchListener() {
+        // Release date is now available for all "where to watch" options
+        // No need to show/hide based on selection
         binding.spinnerWhereToWatch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                WhereToWatch selected = WhereToWatch.values()[position];
-                if (selected == WhereToWatch.THEATER) {
-                    binding.layoutTheaterReleaseDate.setVisibility(View.VISIBLE);
-                } else {
-                    binding.layoutTheaterReleaseDate.setVisibility(View.GONE);
-                    binding.switchReleaseDate.setChecked(false);
-                    binding.buttonReleaseDate.setEnabled(false);
-                    binding.buttonReleaseDate.setText("📅 Select Release Date");
-                    selectedReleaseDate = null;
-                }
+                // Release date UI is always visible for all options
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                binding.layoutTheaterReleaseDate.setVisibility(View.GONE);
+                // No action needed
             }
         });
     }
@@ -146,8 +142,8 @@ public class AddWatchlistFragment extends Fragment {
         WhereToWatch whereToWatch = WhereToWatch.values()[binding.spinnerWhereToWatch.getSelectedItemPosition()];
         item.whereToWatch = whereToWatch.name();
         
-        // Release date (only if Theater and switch is on)
-        if (whereToWatch == WhereToWatch.THEATER && binding.switchReleaseDate.isChecked() && selectedReleaseDate != null) {
+        // Release date (available for all options if switch is on)
+        if (binding.switchReleaseDate.isChecked() && selectedReleaseDate != null) {
             item.releaseDate = selectedReleaseDate.getTimeInMillis();
         } else {
             item.releaseDate = null;
