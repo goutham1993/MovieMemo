@@ -1,10 +1,14 @@
 package com.entertainment.moviememo.ui.settings;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +16,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -31,11 +37,13 @@ public class SettingsFragment extends Fragment {
 
     private static final int REQUEST_CODE_IMPORT_JSON = 1001;
     private static final int REQUEST_CODE_IMPORT_CSV = 1002;
+    private static final int REQUEST_NOTIFICATION_PERMISSION = 1003;
 
     private FragmentSettingsBinding binding;
     private WatchedViewModel watchedViewModel;
     private WatchlistViewModel watchlistViewModel;
     private NotificationSettings currentSettings;
+    private boolean isUpdatingUI = false; // Flag to prevent toast when loading settings
 
     @Nullable
     @Override
@@ -53,6 +61,31 @@ public class SettingsFragment extends Fragment {
 
         loadNotificationSettings();
         setupClickListeners();
+        checkNotificationPermissions();
+    }
+    
+    private void checkNotificationPermissions() {
+        boolean notificationsEnabled = NotificationHelper.areNotificationsEnabled(requireContext());
+        boolean exactAlarmsAllowed = NotificationHelper.canScheduleExactAlarms(requireContext());
+        
+        if (!notificationsEnabled) {
+            showPermissionWarning("Notifications are disabled. Please enable them in system settings to receive reminders.");
+        } else if (!exactAlarmsAllowed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            showPermissionWarning("Exact alarm permission is required for scheduled notifications. Please grant it in system settings.");
+        }
+    }
+    
+    private void showPermissionWarning(String message) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("⚠️ Permission Required")
+                .setMessage(message)
+                .setPositiveButton("Open Settings", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().getPackageName());
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void loadNotificationSettings() {
@@ -70,6 +103,9 @@ public class SettingsFragment extends Fragment {
     }
 
     private void updateUI() {
+        // Set flag to prevent listeners from triggering during UI update
+        isUpdatingUI = true;
+        
         // Update time button
         if (currentSettings.notificationHour != null && currentSettings.notificationMinute != null) {
             Calendar cal = Calendar.getInstance();
@@ -95,6 +131,9 @@ public class SettingsFragment extends Fragment {
         binding.checkboxThursday.setChecked(selectedDays.contains(4));
         binding.checkboxFriday.setChecked(selectedDays.contains(5));
         binding.checkboxSaturday.setChecked(selectedDays.contains(6));
+        
+        // Reset flag after UI update
+        isUpdatingUI = false;
     }
     
     private Set<Integer> getSelectedDays() {
@@ -137,8 +176,28 @@ public class SettingsFragment extends Fragment {
     }
     
     private void onDayChanged() {
+        // Don't do anything if we're just updating the UI (loading settings)
+        if (isUpdatingUI) {
+            return;
+        }
+        
         saveNotificationSettings();
+        
+        // Check permissions before rescheduling
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) 
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        REQUEST_NOTIFICATION_PERMISSION
+                );
+                return;
+            }
+        }
+        
         NotificationHelper.rescheduleAllNotifications(requireContext());
+        Toast.makeText(getContext(), "✅ Notifications scheduled", Toast.LENGTH_SHORT).show();
     }
 
     private void showNotificationTimePicker() {
@@ -152,7 +211,23 @@ public class SettingsFragment extends Fragment {
                     currentSettings.notificationMinute = minute;
                     saveNotificationSettings();
                     updateUI();
-                    NotificationHelper.rescheduleAllNotifications(requireContext());
+                    
+                    // Check permissions before rescheduling
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) 
+                                != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(
+                                    requireActivity(),
+                                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                                    REQUEST_NOTIFICATION_PERMISSION
+                            );
+                        } else {
+                            NotificationHelper.rescheduleAllNotifications(requireContext());
+                        }
+                    } else {
+                        NotificationHelper.rescheduleAllNotifications(requireContext());
+                    }
+                    
                     Toast.makeText(getContext(), "✅ Notification time set to " + String.format("%02d:%02d", hourOfDay, minute), Toast.LENGTH_SHORT).show();
                 },
                 currentHour,
@@ -267,6 +342,20 @@ public class SettingsFragment extends Fragment {
         startActivityForResult(Intent.createChooser(intent, "Select CSV file"), REQUEST_CODE_IMPORT_CSV);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                NotificationHelper.rescheduleAllNotifications(requireContext());
+                Toast.makeText(getContext(), "✅ Notifications enabled", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "⚠️ Notifications require permission to work", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

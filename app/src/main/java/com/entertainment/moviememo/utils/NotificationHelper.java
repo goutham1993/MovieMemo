@@ -64,7 +64,32 @@ public class NotificationHelper {
         }
     }
     
+    public static boolean canScheduleExactAlarms(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null) {
+                return alarmManager.canScheduleExactAlarms();
+            }
+        }
+        return true; // For older versions, assume we can schedule
+    }
+    
+    public static boolean areNotificationsEnabled(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                return notificationManager.areNotificationsEnabled();
+            }
+        }
+        return true; // For older versions, assume enabled
+    }
+    
     public static void showNotification(Context context, String movieTitle) {
+        // Check if notifications are enabled
+        if (!areNotificationsEnabled(context)) {
+            return;
+        }
+        
         createNotificationChannel(context);
         
         Intent intent = new Intent(context, MainActivity.class);
@@ -102,7 +127,11 @@ public class NotificationHelper {
             
             // Get notification settings from database
             NotificationSettings settings = AppDatabase.getDatabase(context).movieDao().getNotificationSettings();
-            if (settings == null || settings.selectedDays == null || settings.selectedDays.isEmpty()) {
+            if (settings == null) {
+                return;
+            }
+            
+            if (settings.selectedDays == null || settings.selectedDays.isEmpty()) {
                 return;
             }
             
@@ -115,10 +144,17 @@ public class NotificationHelper {
             Set<Integer> selectedDays = new HashSet<>();
             for (String dayString : dayStrings) {
                 try {
-                    selectedDays.add(Integer.parseInt(dayString.trim()));
+                    int day = Integer.parseInt(dayString.trim());
+                    if (day >= 0 && day <= 6) {
+                        selectedDays.add(day);
+                    }
                 } catch (NumberFormatException e) {
                     // Skip invalid days
                 }
+            }
+            
+            if (selectedDays.isEmpty()) {
+                return;
             }
             
             // Schedule one notification per selected day (recurring weekly)
@@ -132,25 +168,43 @@ public class NotificationHelper {
         // Calculate next occurrence of this day
         Calendar now = Calendar.getInstance();
         Calendar notificationTime = Calendar.getInstance();
+        
+        // Convert our day format (0=Sunday, 1=Monday, ..., 6=Saturday) to Calendar format (1=Sunday, 2=Monday, ..., 7=Saturday)
+        int calendarDayOfWeek = dayOfWeek == 0 ? Calendar.SUNDAY : dayOfWeek + 1;
+        
+        // Get current day of week
+        int currentDayOfWeek = now.get(Calendar.DAY_OF_WEEK);
+        
+        // Calculate days until the target day
+        int daysUntilNext = (calendarDayOfWeek - currentDayOfWeek + 7) % 7;
+        
+        // Set the notification time for the target day
         notificationTime.set(Calendar.HOUR_OF_DAY, notificationHour);
         notificationTime.set(Calendar.MINUTE, notificationMinute);
         notificationTime.set(Calendar.SECOND, 0);
         notificationTime.set(Calendar.MILLISECOND, 0);
         
-        // Convert our day format (0=Sunday, 1=Monday, ..., 6=Saturday) to Calendar format (1=Sunday, 2=Monday, ..., 7=Saturday)
-        int calendarDayOfWeek = dayOfWeek == 0 ? Calendar.SUNDAY : dayOfWeek + 1;
-        
-        // Find the next occurrence of this day
-        int daysUntilNext = (calendarDayOfWeek - notificationTime.get(Calendar.DAY_OF_WEEK) + 7) % 7;
+        // If today is the target day
         if (daysUntilNext == 0) {
-            // If today is the selected day, check if time has passed
+            // Check if the time has already passed today
             if (notificationTime.getTimeInMillis() <= now.getTimeInMillis()) {
-                // Time has passed today, schedule for next week
+                // Time has passed, schedule for next week
                 daysUntilNext = 7;
+            } else {
+                // Time hasn't passed yet, schedule for today
+                daysUntilNext = 0;
             }
         }
         
-        notificationTime.add(Calendar.DAY_OF_MONTH, daysUntilNext);
+        // Add the days to get the target date
+        if (daysUntilNext > 0) {
+            notificationTime.add(Calendar.DAY_OF_MONTH, daysUntilNext);
+        }
+        
+        // Ensure we're not scheduling in the past
+        if (notificationTime.getTimeInMillis() <= now.getTimeInMillis()) {
+            notificationTime.add(Calendar.DAY_OF_MONTH, 7);
+        }
         
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager == null) {
@@ -168,29 +222,73 @@ public class NotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
+        long triggerTime = notificationTime.getTimeInMillis();
+        
         // Schedule recurring notification weekly
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    notificationTime.getTimeInMillis(),
-                    pendingIntent
-            );
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    notificationTime.getTimeInMillis(),
-                    pendingIntent
-            );
-        } else {
-            alarmManager.set(
-                    AlarmManager.RTC_WAKEUP,
-                    notificationTime.getTimeInMillis(),
-                    pendingIntent
-            );
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    // For Android 12+, check if we can schedule exact alarms
+                    if (!alarmManager.canScheduleExactAlarms()) {
+                        // Try with set() as fallback
+                        alarmManager.set(
+                                AlarmManager.RTC_WAKEUP,
+                                triggerTime,
+                                pendingIntent
+                        );
+                    } else {
+                        alarmManager.setExactAndAllowWhileIdle(
+                                AlarmManager.RTC_WAKEUP,
+                                triggerTime,
+                                pendingIntent
+                        );
+                    }
+                } else {
+                    alarmManager.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            triggerTime,
+                            pendingIntent
+                    );
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerTime,
+                        pendingIntent
+                );
+            } else {
+                alarmManager.set(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerTime,
+                        pendingIntent
+                );
+            }
+        } catch (SecurityException e) {
+            // Permission denied, try fallback
+            try {
+                alarmManager.set(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerTime,
+                        pendingIntent
+                );
+            } catch (Exception ex) {
+                // Ignore
+            }
+        } catch (Exception e) {
+            // Ignore
         }
         
         // For recurring weekly notifications, we'll need to reschedule after each notification
         // This is handled by rescheduling on app startup and when settings change
     }
+    
+    private static String getDayName(int dayOfWeek) {
+        String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        if (dayOfWeek >= 0 && dayOfWeek < days.length) {
+            return days[dayOfWeek];
+        }
+        return "Unknown";
+    }
 }
+
 
