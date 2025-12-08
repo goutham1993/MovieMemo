@@ -52,8 +52,20 @@ public class StatsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         premiumManager = PremiumManager.getInstance(requireContext());
-        
-        // Check premium status
+        checkPremiumStatus();
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Check premium status every time fragment becomes visible
+        // This ensures we show paywall if subscription was cancelled
+        if (premiumManager != null) {
+            checkPremiumStatus();
+        }
+    }
+    
+    private void checkPremiumStatus() {
         if (!premiumManager.isPremium()) {
             showPaywall();
         } else {
@@ -62,20 +74,25 @@ public class StatsFragment extends Fragment {
     }
     
     private void showPaywall() {
+        // Remove paywall fragment if it already exists (to refresh it)
+        if (paywallFragment != null) {
+            getChildFragmentManager().beginTransaction()
+                    .remove(paywallFragment)
+                    .commitNow();
+        }
+        
         // Hide stats content
         View statsContent = binding.getRoot().findViewById(R.id.stats_content);
         if (statsContent != null) {
             statsContent.setVisibility(View.GONE);
         }
         
-        // Show paywall fragment
-        if (paywallFragment == null) {
-            paywallFragment = new PaywallFragment();
-            paywallFragment.setOnSubscriptionPurchasedListener(() -> {
-                // User purchased subscription, show stats
-                showStats();
-            });
-        }
+        // Create and show paywall fragment
+        paywallFragment = new PaywallFragment();
+        paywallFragment.setOnSubscriptionPurchasedListener(() -> {
+            // User purchased subscription, show stats
+            checkPremiumStatus();
+        });
         
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.stats_container, paywallFragment)
@@ -87,7 +104,7 @@ public class StatsFragment extends Fragment {
         if (paywallFragment != null) {
             getChildFragmentManager().beginTransaction()
                     .remove(paywallFragment)
-                    .commit();
+                    .commitNow();
             paywallFragment = null;
         }
         
