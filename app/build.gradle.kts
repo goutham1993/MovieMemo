@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.startup.runtime)
     
+    // Security - EncryptedSharedPreferences
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    
     annotationProcessor(libs.room.compiler)
     
     testImplementation(libs.junit)

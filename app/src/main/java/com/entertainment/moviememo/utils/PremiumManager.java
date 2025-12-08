@@ -3,6 +3,12 @@ package com.entertainment.moviememo.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 public class PremiumManager {
     
     private static final String PREFS_NAME = "premium_prefs";
@@ -20,7 +26,25 @@ public class PremiumManager {
     private SharedPreferences prefs;
     
     private PremiumManager(Context context) {
-        prefs = context.getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        try {
+            // Create or retrieve master key
+            MasterKey masterKey = new MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+            
+            // Create EncryptedSharedPreferences
+            prefs = EncryptedSharedPreferences.create(
+                    context,
+                    PREFS_NAME,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+        } catch (GeneralSecurityException | IOException e) {
+            // Fallback to regular SharedPreferences if encryption fails
+            // This should rarely happen, but provides a safety net
+            prefs = context.getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        }
     }
     
     public static synchronized PremiumManager getInstance(Context context) {
