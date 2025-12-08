@@ -43,4 +43,37 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+
+    <!-- Premium Paywall Strings -->
+    <string name="premium_title">Unlock Premium</string>
+    <string name="premium_subtitle">Get access to advanced statistics and insights</string>
+    <string name="premium_benefits_title">Premium Benefits</string>
+    <string name="premium_benefit_1">📊 Access to detailed statistics and analytics</string>
+    <string name="premium_benefit_2">📈 View your movie watching trends over time</string>
+    <string name="premium_benefit_3">💎 Support the development of MovieMemo</string>
+    <string name="choose_plan">Choose Your Plan</string>
+    
+    <!-- Subscription Plans -->
+    <string name="plan_monthly">Monthly</string>
+    <string name="plan_monthly_price">$0.99</string>
+    <string name="plan_monthly_period">per month</string>
+    
+    <string name="plan_yearly">Yearly</string>
+    <string name="plan_yearly_price">$5.99</string>
+    <string name="plan_yearly_period">per year</string>
+    
+    <string name="plan_lifetime">Lifetime</string>
+    <string name="plan_lifetime_price">$10.99</string>
+    <string name="plan_lifetime_period">one-time payment</string>
+    
+    <string name="best_value">BEST VALUE</string>
+    <string name="button_subscribe">Subscribe</string>
+    <string name="button_restore">Restore Purchases</string>
+    <string name="terms_and_conditions">By subscribing, you agree to our Terms of Service and Privacy Policy</string>
+    
+    <!-- Purchase Messages -->
+    <string name="purchase_success">Subscription activated successfully!</string>
+    <string name="purchase_error">Failed to process subscription. Please try again.</string>
+    <string name="restore_success">Subscription restored successfully!</string>
+    <string name="restore_error">No active subscription found to restore.</string>
 </resources>

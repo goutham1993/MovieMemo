@@ -14,8 +14,10 @@ import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.databinding.FragmentStatsBinding;
 import com.entertainment.moviememo.viewmodels.StatsViewModel;
 import com.entertainment.moviememo.utils.DurationUtils;
+import com.entertainment.moviememo.utils.PremiumManager;
 import com.entertainment.moviememo.ui.adapters.GenreStatsAdapter;
 import com.entertainment.moviememo.ui.adapters.MonthlyStatsAdapter;
+import com.entertainment.moviememo.ui.premium.PaywallFragment;
 import com.entertainment.moviememo.data.entities.KeyCount;
 import com.entertainment.moviememo.data.entities.MonthCount;
 import com.entertainment.moviememo.data.enums.LocationType;
@@ -29,12 +31,14 @@ public class StatsFragment extends Fragment {
 
     private FragmentStatsBinding binding;
     private StatsViewModel viewModel;
+    private PremiumManager premiumManager;
     private GenreStatsAdapter genreAdapter;
     private GenreStatsAdapter locationAdapter;
     private GenreStatsAdapter timeAdapter;
     private GenreStatsAdapter languageAdapter;
     private GenreStatsAdapter companionAdapter;
     private MonthlyStatsAdapter monthlyAdapter;
+    private PaywallFragment paywallFragment;
 
     @Nullable
     @Override
@@ -47,9 +51,58 @@ public class StatsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
-        setupAdapters();
-        observeData();
+        premiumManager = PremiumManager.getInstance(requireContext());
+        
+        // Check premium status
+        if (!premiumManager.isPremium()) {
+            showPaywall();
+        } else {
+            showStats();
+        }
+    }
+    
+    private void showPaywall() {
+        // Hide stats content
+        View statsContent = binding.getRoot().findViewById(R.id.stats_content);
+        if (statsContent != null) {
+            statsContent.setVisibility(View.GONE);
+        }
+        
+        // Show paywall fragment
+        if (paywallFragment == null) {
+            paywallFragment = new PaywallFragment();
+            paywallFragment.setOnSubscriptionPurchasedListener(() -> {
+                // User purchased subscription, show stats
+                showStats();
+            });
+        }
+        
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.stats_container, paywallFragment)
+                .commit();
+    }
+    
+    private void showStats() {
+        // Remove paywall if it exists
+        if (paywallFragment != null) {
+            getChildFragmentManager().beginTransaction()
+                    .remove(paywallFragment)
+                    .commit();
+            paywallFragment = null;
+        }
+        
+        // Show stats content
+        View statsContent = binding.getRoot().findViewById(R.id.stats_content);
+        if (statsContent != null) {
+            statsContent.setVisibility(View.VISIBLE);
+        }
+        
+        // Initialize stats if not already initialized
+        if (viewModel == null) {
+            viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
+            setupAdapters();
+            observeData();
+        }
     }
     
     private void setupAdapters() {

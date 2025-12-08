@@ -12,6 +12,8 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,6 +28,7 @@ import com.entertainment.moviememo.data.entities.NotificationSettings;
 import com.entertainment.moviememo.databinding.FragmentSettingsBinding;
 import com.entertainment.moviememo.utils.ExportImportHelper;
 import com.entertainment.moviememo.utils.NotificationHelper;
+import com.entertainment.moviememo.utils.PremiumManager;
 import com.entertainment.moviememo.viewmodels.WatchedViewModel;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
 
@@ -43,6 +46,7 @@ public class SettingsFragment extends Fragment {
     private WatchedViewModel watchedViewModel;
     private WatchlistViewModel watchlistViewModel;
     private NotificationSettings currentSettings;
+    private PremiumManager premiumManager;
     private boolean isUpdatingUI = false; // Flag to prevent toast when loading settings
 
     @Nullable
@@ -58,6 +62,7 @@ public class SettingsFragment extends Fragment {
 
         watchedViewModel = new ViewModelProvider(this).get(WatchedViewModel.class);
         watchlistViewModel = new ViewModelProvider(this).get(WatchlistViewModel.class);
+        premiumManager = PremiumManager.getInstance(requireContext());
 
         loadNotificationSettings();
         setupClickListeners();
@@ -164,6 +169,12 @@ public class SettingsFragment extends Fragment {
         binding.buttonExportCsv.setOnClickListener(v -> exportToCsv());
         binding.buttonImportJson.setOnClickListener(v -> importFromJson());
         binding.buttonImportCsv.setOnClickListener(v -> importFromCsv());
+        
+        // Subscription management
+        binding.buttonClearSubscription.setOnClickListener(v -> showClearSubscriptionDialog());
+        
+        // Setup expandable cards
+        setupExpandableCards();
         
         // Day checkbox listeners
         binding.checkboxMonday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
@@ -288,6 +299,83 @@ public class SettingsFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void showClearSubscriptionDialog() {
+        boolean isPremium = premiumManager.isPremium();
+        String message = isPremium 
+            ? "Are you sure you want to cancel your subscription? You will lose access to premium features."
+            : "You don't have an active subscription.";
+        
+        if (!isPremium) {
+            Toast.makeText(getContext(), "No active subscription to cancel.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        new AlertDialog.Builder(getContext())
+                .setTitle("🚫 Cancel Subscription")
+                .setMessage(message)
+                .setPositiveButton("Cancel Subscription", (dialog, which) -> {
+                    premiumManager.clearSubscription();
+                    Toast.makeText(getContext(), "✅ Subscription cancelled. Premium features are now locked.", Toast.LENGTH_LONG).show();
+                })
+                .setNegativeButton("Keep Subscription", null)
+                .show();
+    }
+    
+    private void setupExpandableCards() {
+        // Data Management
+        setupExpandableCard(
+            binding.headerDataManagement,
+            binding.contentDataManagement,
+            binding.iconExpandDataManagement
+        );
+        
+        // Export/Import
+        setupExpandableCard(
+            binding.headerExportImport,
+            binding.contentExportImport,
+            binding.iconExpandExportImport
+        );
+        
+        // Notifications
+        setupExpandableCard(
+            binding.headerNotifications,
+            binding.contentNotifications,
+            binding.iconExpandNotifications
+        );
+        
+        // Subscription
+        setupExpandableCard(
+            binding.headerSubscription,
+            binding.contentSubscription,
+            binding.iconExpandSubscription
+        );
+    }
+    
+    private void setupExpandableCard(View header, View content, ImageView expandIcon) {
+        header.setOnClickListener(v -> {
+            boolean isExpanded = content.getVisibility() == View.VISIBLE;
+            
+            if (isExpanded) {
+                content.setVisibility(View.GONE);
+                rotateIcon(expandIcon, 0f);
+            } else {
+                content.setVisibility(View.VISIBLE);
+                rotateIcon(expandIcon, 180f);
+            }
+        });
+    }
+    
+    private void rotateIcon(ImageView icon, float toDegrees) {
+        RotateAnimation rotate = new RotateAnimation(
+            0f, toDegrees,
+            RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+            RotateAnimation.RELATIVE_TO_SELF, 0.5f
+        );
+        rotate.setDuration(200);
+        rotate.setFillAfter(true);
+        icon.startAnimation(rotate);
     }
 
     private void exportToJson() {
