@@ -105,6 +105,32 @@ public class PremiumManager {
         editor.apply();
     }
     
+    /**
+     * Update subscription from Google Play purchase
+     * This is called by BillingManager when a purchase is verified
+     */
+    public void setSubscriptionFromPurchase(SubscriptionType type, long purchaseTime) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(KEY_SUBSCRIPTION_TYPE, type.name());
+        
+        if (type == SubscriptionType.LIFETIME) {
+            // Lifetime never expires
+            editor.putLong(KEY_SUBSCRIPTION_EXPIRY, Long.MAX_VALUE);
+        } else if (type == SubscriptionType.MONTHLY) {
+            // Monthly subscription - Google Play will handle renewal
+            // Set expiry to 31 days from purchase time (slightly longer for safety)
+            long expiryTime = purchaseTime + (31L * 24 * 60 * 60 * 1000);
+            editor.putLong(KEY_SUBSCRIPTION_EXPIRY, expiryTime);
+        } else if (type == SubscriptionType.YEARLY) {
+            // Yearly subscription - Google Play will handle renewal
+            // Set expiry to 366 days from purchase time (slightly longer for safety)
+            long expiryTime = purchaseTime + (366L * 24 * 60 * 60 * 1000);
+            editor.putLong(KEY_SUBSCRIPTION_EXPIRY, expiryTime);
+        }
+        
+        editor.apply();
+    }
+    
     public void clearSubscription() {
         SharedPreferences.Editor editor = prefs.edit();
         editor.remove(KEY_SUBSCRIPTION_TYPE);

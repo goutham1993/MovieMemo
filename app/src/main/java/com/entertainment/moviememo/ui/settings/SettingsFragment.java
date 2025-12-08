@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.entertainment.moviememo.data.database.AppDatabase;
 import com.entertainment.moviememo.data.entities.NotificationSettings;
 import com.entertainment.moviememo.databinding.FragmentSettingsBinding;
+import com.entertainment.moviememo.utils.BillingManager;
 import com.entertainment.moviememo.utils.ExportImportHelper;
 import com.entertainment.moviememo.utils.NotificationHelper;
 import com.entertainment.moviememo.utils.PremiumManager;
@@ -47,6 +48,7 @@ public class SettingsFragment extends Fragment {
     private WatchlistViewModel watchlistViewModel;
     private NotificationSettings currentSettings;
     private PremiumManager premiumManager;
+    private BillingManager billingManager;
     private boolean isUpdatingUI = false; // Flag to prevent toast when loading settings
 
     @Nullable
@@ -63,6 +65,7 @@ public class SettingsFragment extends Fragment {
         watchedViewModel = new ViewModelProvider(this).get(WatchedViewModel.class);
         watchlistViewModel = new ViewModelProvider(this).get(WatchlistViewModel.class);
         premiumManager = PremiumManager.getInstance(requireContext());
+        billingManager = BillingManager.getInstance(requireContext());
 
         loadNotificationSettings();
         setupClickListeners();
@@ -171,6 +174,7 @@ public class SettingsFragment extends Fragment {
         binding.buttonImportCsv.setOnClickListener(v -> importFromCsv());
         
         // Subscription management
+        binding.buttonManageSubscription.setOnClickListener(v -> manageOrRestorePurchases());
         binding.buttonClearSubscription.setOnClickListener(v -> showClearSubscriptionDialog());
         
         // Setup expandable cards
@@ -301,6 +305,78 @@ public class SettingsFragment extends Fragment {
                 .show();
     }
 
+    private void manageOrRestorePurchases() {
+        // Try to open Google Play subscription management first
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://play.google.com/store/account/subscriptions?package=" + requireContext().getPackageName()));
+            intent.setPackage("com.android.vending");
+            
+            // Check if Google Play Store is available
+            if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+                startActivity(intent);
+                Toast.makeText(getContext(), "Opening Google Play subscription management...", Toast.LENGTH_SHORT).show();
+            } else {
+                // Fallback: Try without package specification
+                intent.setPackage(null);
+                if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+                    startActivity(intent);
+                    Toast.makeText(getContext(), "Opening subscription management...", Toast.LENGTH_SHORT).show();
+                } else {
+                    // If can't open Play Store, run restore logic
+                    restorePurchases();
+                }
+            }
+        } catch (Exception e) {
+            // If opening Play Store fails, run restore logic
+            restorePurchases();
+        }
+    }
+    
+    private void restorePurchases() {
+        Toast.makeText(getContext(), "Restoring purchases...", Toast.LENGTH_SHORT).show();
+        
+        if (billingManager.isServiceConnected()) {
+            // Use BillingManager to restore from Google Play
+            billingManager.setBillingStateListener(new BillingManager.BillingStateListener() {
+                @Override
+                public void onBillingSetupFinished(boolean success) {
+                    // Not used for restore
+                }
+
+                @Override
+                public void onPurchaseSuccess(PremiumManager.SubscriptionType type) {
+                    // Not used for restore
+                }
+
+                @Override
+                public void onPurchaseError(String error) {
+                    // Not used for restore
+                }
+
+                @Override
+                public void onRestoreSuccess(boolean hasActiveSubscription) {
+                    if (hasActiveSubscription) {
+                        Toast.makeText(getContext(), "✅ Purchases restored successfully!", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), "No active subscriptions found to restore.", Toast.LENGTH_LONG).show();
+                    }
+                    // Remove listener after restore
+                    billingManager.setBillingStateListener(null);
+                }
+            });
+            
+            billingManager.restorePurchases();
+        } else {
+            // Billing service not available, check local cache
+            if (premiumManager.hasActiveSubscription()) {
+                Toast.makeText(getContext(), "✅ Found active subscription in local cache.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), "No active subscriptions found. Billing service unavailable.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    
     private void showClearSubscriptionDialog() {
         boolean isPremium = premiumManager.isPremium();
         String message = isPremium 

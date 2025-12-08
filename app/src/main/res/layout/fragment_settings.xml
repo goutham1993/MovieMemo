@@ -390,6 +390,14 @@
                 android:visibility="gone">
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_manage_subscription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/button_manage_restore"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_clear_subscription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -1,5 +1,6 @@
 package com.entertainment.moviememo.ui.premium;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +13,14 @@ import androidx.fragment.app.Fragment;
 
 import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.databinding.FragmentPaywallBinding;
+import com.entertainment.moviememo.utils.BillingManager;
 import com.entertainment.moviememo.utils.PremiumManager;
 
 public class PaywallFragment extends Fragment {
 
     private FragmentPaywallBinding binding;
     private PremiumManager premiumManager;
+    private BillingManager billingManager;
     private OnSubscriptionPurchasedListener listener;
 
     public interface OnSubscriptionPurchasedListener {
@@ -40,7 +43,62 @@ public class PaywallFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         premiumManager = PremiumManager.getInstance(requireContext());
+        billingManager = BillingManager.getInstance(requireContext());
+        
+        setupBillingListener();
         setupClickListeners();
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (billingManager != null) {
+            billingManager.setBillingStateListener(null);
+        }
+    }
+    
+    private void setupBillingListener() {
+        billingManager.setBillingStateListener(new BillingManager.BillingStateListener() {
+            @Override
+            public void onBillingSetupFinished(boolean success) {
+                if (!success) {
+                    // Don't show error immediately - user might be testing without Google Play
+                    // Toast.makeText(requireContext(), "Billing service unavailable - Test mode enabled", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onPurchaseSuccess(PremiumManager.SubscriptionType type) {
+                String message = getString(R.string.purchase_success);
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                
+                // Notify listener that subscription was purchased
+                if (listener != null) {
+                    listener.onSubscriptionPurchased();
+                }
+            }
+
+            @Override
+            public void onPurchaseError(String error) {
+                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRestoreSuccess(boolean hasActiveSubscription) {
+                if (hasActiveSubscription) {
+                    String message = getString(R.string.restore_success);
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                    
+                    // Notify listener that subscription was restored
+                    if (listener != null) {
+                        listener.onSubscriptionPurchased();
+                    }
+                } else {
+                    String message = getString(R.string.restore_error);
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void setupClickListeners() {
@@ -58,38 +116,65 @@ public class PaywallFragment extends Fragment {
     }
 
     private void purchaseSubscription(PremiumManager.SubscriptionType type) {
-        // Mock purchase - in a real app, this would integrate with Google Play Billing
+        Activity activity = getActivity();
+        if (activity == null) {
+            Toast.makeText(requireContext(), "Activity not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // For now, always use test mode when billing service is not available
+        // This allows testing without Google Play Billing setup
+        if (!billingManager.isServiceConnected()) {
+            performMockPurchase(type);
+            return;
+        }
+        
+        // Try to use real Google Play Billing if available
+        String skuId = billingManager.getSkuForSubscriptionType(type);
+        if (skuId == null) {
+            // Fallback to test mode if SKU mapping fails
+            performMockPurchase(type);
+            return;
+        }
+        
+        // Show loading message
+        Toast.makeText(requireContext(), "Loading purchase options...", Toast.LENGTH_SHORT).show();
+        
+        billingManager.launchBillingFlow(activity, skuId);
+    }
+    
+    private void performMockPurchase(PremiumManager.SubscriptionType type) {
+        // Mock purchase for testing when billing service is not available
+        // This allows testing the subscription flow without Google Play Billing
         try {
+            // Show a brief message that we're using test mode
+            Toast.makeText(requireContext(), "Processing test purchase...", Toast.LENGTH_SHORT).show();
+            
+            // Set the subscription in the local cache
             premiumManager.setSubscription(type);
             
-            String message = getString(R.string.purchase_success);
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+            // Show success message
+            String message = getString(R.string.purchase_success) + " (Test Mode)";
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
             
             // Notify listener that subscription was purchased
+            // This will trigger the StatsFragment to refresh and show stats
             if (listener != null) {
                 listener.onSubscriptionPurchased();
             }
         } catch (Exception e) {
-            String message = getString(R.string.purchase_error);
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+            String message = getString(R.string.purchase_error) + ": " + e.getMessage();
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
         }
     }
 
     private void restorePurchases() {
-        // Mock restore - in a real app, this would query Google Play Billing
-        // For now, just check if there's an active subscription
-        if (premiumManager.hasActiveSubscription()) {
-            String message = getString(R.string.restore_success);
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-            
-            // Notify listener that subscription was restored
-            if (listener != null) {
-                listener.onSubscriptionPurchased();
-            }
-        } else {
-            String message = getString(R.string.restore_error);
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+        if (!billingManager.isServiceConnected()) {
+            Toast.makeText(requireContext(), "Billing service not ready. Please try again.", Toast.LENGTH_SHORT).show();
+            return;
         }
+        
+        billingManager.restorePurchases();
     }
 }
 

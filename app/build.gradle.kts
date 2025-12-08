@@ -51,6 +51,9 @@ dependencies {
     // Security - EncryptedSharedPreferences
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     
+    // Google Play Billing
+    implementation("com.android.billingclient:billing:7.1.1")
+    
     annotationProcessor(libs.room.compiler)
     
     testImplementation(libs.junit)
