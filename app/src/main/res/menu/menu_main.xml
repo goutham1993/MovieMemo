@@ -4,12 +4,14 @@
     tools:context="com.entertainment.moviememo.MainActivity">
     <item
         android:id="@+id/action_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_about"
+        android:icon="@android:drawable/ic_dialog_info"
         android:orderInCategory="101"
-        android:title="ℹ️ About"
+        android:title="About"
         app:showAsAction="never" />
 </menu>
