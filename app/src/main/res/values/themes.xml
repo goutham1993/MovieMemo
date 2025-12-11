@@ -76,26 +76,32 @@
     
     <!-- Custom Popup Menu Style -->
     <style name="PopupMenu.MovieMemo" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">@color/light_popup_background</item>
-        <item name="android:textColor">@color/light_popup_text</item>
+        <item name="android:popupBackground">?attr/colorSurface</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurface</item>
+        <item name="colorControlNormal">?attr/colorOnSurface</item>
         <item name="android:itemTextAppearance">@style/PopupMenuText.MovieMemo</item>
     </style>
     
     <!-- Popup Menu Text Style -->
     <style name="PopupMenuText.MovieMemo" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/light_popup_text</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
     
     <!-- Dark Theme Popup Menu Style -->
     <style name="PopupMenu.MovieMemo.Dark" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">@color/dark_popup_background</item>
-        <item name="android:textColor">@color/dark_popup_text</item>
+        <item name="android:popupBackground">?attr/colorSurface</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurface</item>
+        <item name="colorControlNormal">?attr/colorOnSurface</item>
         <item name="android:itemTextAppearance">@style/PopupMenuText.MovieMemo.Dark</item>
     </style>
     
     <!-- Dark Theme Popup Menu Text Style -->
     <style name="PopupMenuText.MovieMemo.Dark" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/dark_popup_text</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
     
     <!-- Custom FAB Style for Light Theme -->

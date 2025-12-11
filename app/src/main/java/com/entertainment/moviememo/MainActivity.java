@@ -247,18 +247,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupMenu() {
         // Set overflow icon tint to match theme
-        if (binding.toolbar.getOverflowIcon() != null) {
-            // Use theme-aware color that adapts to light/dark mode
-            android.content.res.TypedArray a = getTheme().obtainStyledAttributes(new int[]{com.google.android.material.R.attr.colorOnPrimary});
-            int tintColor = a.getColor(0, 0);
-            a.recycle();
-            binding.toolbar.getOverflowIcon().setTint(tintColor);
-        }
+//        if (binding.toolbar.getOverflowIcon() != null) {
+//            // Use theme-aware color that adapts to light/dark mode
+//            android.content.res.TypedArray a = getTheme().obtainStyledAttributes(new int[]{com.google.android.material.R.attr.colorOnPrimary});
+//            int tintColor = a.getColor(0, 0);
+//            a.recycle();
+//            binding.toolbar.getOverflowIcon().setTint(tintColor);
+//        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        
+        // Ensure menu items have proper text color for visibility
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            if (item.getIcon() != null) {
+                // Get theme-aware color for icons
+                android.content.res.TypedArray a = getTheme().obtainStyledAttributes(
+                    new int[]{com.google.android.material.R.attr.colorOnSurface});
+                int iconColor = a.getColor(0, 0xFF000000);
+                a.recycle();
+                item.getIcon().setTint(iconColor);
+            }
+        }
+        
         return true;
     }
 

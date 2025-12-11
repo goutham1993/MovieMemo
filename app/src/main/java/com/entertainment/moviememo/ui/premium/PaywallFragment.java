@@ -22,6 +22,7 @@ public class PaywallFragment extends Fragment {
     private PremiumManager premiumManager;
     private BillingManager billingManager;
     private OnSubscriptionPurchasedListener listener;
+    private PremiumManager.SubscriptionType selectedSubscriptionType = PremiumManager.SubscriptionType.YEARLY;
 
     public interface OnSubscriptionPurchasedListener {
         void onSubscriptionPurchased();
@@ -102,14 +103,49 @@ public class PaywallFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        // Monthly subscription
-        binding.btnMonthly.setOnClickListener(v -> purchaseSubscription(PremiumManager.SubscriptionType.MONTHLY));
+        // Make cards clickable to select radio buttons
+        binding.cardMonthly.setOnClickListener(v -> {
+            binding.radioMonthly.setChecked(true);
+            binding.radioYearly.setChecked(false);
+            binding.radioLifetime.setChecked(false);
+            selectedSubscriptionType = PremiumManager.SubscriptionType.MONTHLY;
+        });
 
-        // Yearly subscription
-        binding.btnYearly.setOnClickListener(v -> purchaseSubscription(PremiumManager.SubscriptionType.YEARLY));
+        binding.cardYearly.setOnClickListener(v -> {
+            binding.radioMonthly.setChecked(false);
+            binding.radioYearly.setChecked(true);
+            binding.radioLifetime.setChecked(false);
+            selectedSubscriptionType = PremiumManager.SubscriptionType.YEARLY;
+        });
 
-        // Lifetime subscription
-        binding.btnLifetime.setOnClickListener(v -> purchaseSubscription(PremiumManager.SubscriptionType.LIFETIME));
+        binding.cardLifetime.setOnClickListener(v -> {
+            binding.radioMonthly.setChecked(false);
+            binding.radioYearly.setChecked(false);
+            binding.radioLifetime.setChecked(true);
+            selectedSubscriptionType = PremiumManager.SubscriptionType.LIFETIME;
+        });
+
+        // Radio button listeners
+        binding.radioMonthly.setOnClickListener(v -> {
+            binding.radioYearly.setChecked(false);
+            binding.radioLifetime.setChecked(false);
+            selectedSubscriptionType = PremiumManager.SubscriptionType.MONTHLY;
+        });
+
+        binding.radioYearly.setOnClickListener(v -> {
+            binding.radioMonthly.setChecked(false);
+            binding.radioLifetime.setChecked(false);
+            selectedSubscriptionType = PremiumManager.SubscriptionType.YEARLY;
+        });
+
+        binding.radioLifetime.setOnClickListener(v -> {
+            binding.radioMonthly.setChecked(false);
+            binding.radioYearly.setChecked(false);
+            selectedSubscriptionType = PremiumManager.SubscriptionType.LIFETIME;
+        });
+
+        // Single subscribe button
+        binding.btnSubscribe.setOnClickListener(v -> purchaseSubscription(selectedSubscriptionType));
 
         // Restore purchases
         binding.btnRestore.setOnClickListener(v -> restorePurchases());

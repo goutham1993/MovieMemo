@@ -72,7 +72,7 @@
     <color name="dark_scrim">#000000</color>
     
     <!-- Popup Menu Colors -->
-    <color name="light_popup_background">#FFFBF7</color>
+    <color name="light_popup_background">#FFFFFF</color>
     <color name="light_popup_text">#1C1B16</color>
     <color name="dark_popup_background">#2C2C2C</color>
     <color name="dark_popup_text">#E6E1D9</color>

@@ -2,7 +2,6 @@ package com.entertainment.moviememo.ui.settings;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,8 +11,6 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.RotateAnimation;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,9 +30,6 @@ import com.entertainment.moviememo.utils.PremiumManager;
 import com.entertainment.moviememo.viewmodels.WatchedViewModel;
 import com.entertainment.moviememo.viewmodels.WatchlistViewModel;
 
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
 
 public class SettingsFragment extends Fragment {
 
@@ -49,7 +43,7 @@ public class SettingsFragment extends Fragment {
     private NotificationSettings currentSettings;
     private PremiumManager premiumManager;
     private BillingManager billingManager;
-    private boolean isUpdatingUI = false; // Flag to prevent toast when loading settings
+    private boolean isUpdatingUI = false;
 
     @Nullable
     @Override
@@ -69,31 +63,7 @@ public class SettingsFragment extends Fragment {
 
         loadNotificationSettings();
         setupClickListeners();
-        checkNotificationPermissions();
-    }
-    
-    private void checkNotificationPermissions() {
-        boolean notificationsEnabled = NotificationHelper.areNotificationsEnabled(requireContext());
-        boolean exactAlarmsAllowed = NotificationHelper.canScheduleExactAlarms(requireContext());
-        
-        if (!notificationsEnabled) {
-            showPermissionWarning("Notifications are disabled. Please enable them in system settings to receive reminders.");
-        } else if (!exactAlarmsAllowed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            showPermissionWarning("Exact alarm permission is required for scheduled notifications. Please grant it in system settings.");
-        }
-    }
-    
-    private void showPermissionWarning(String message) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("⚠️ Permission Required")
-                .setMessage(message)
-                .setPositiveButton("Open Settings", (dialog, which) -> {
-                    Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().getPackageName());
-                    startActivity(intent);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        updatePremiumFeatures();
     }
 
     private void loadNotificationSettings() {
@@ -111,349 +81,251 @@ public class SettingsFragment extends Fragment {
     }
 
     private void updateUI() {
-        // Set flag to prevent listeners from triggering during UI update
         isUpdatingUI = true;
-        
-        // Update time button
-        if (currentSettings.notificationHour != null && currentSettings.notificationMinute != null) {
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR_OF_DAY, currentSettings.notificationHour);
-            cal.set(Calendar.MINUTE, currentSettings.notificationMinute);
-            
-            java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault());
-            String timeText = timeFormat.format(cal.getTime());
-            binding.buttonNotificationTime.setText("⏰ " + timeText);
-        } else {
-            binding.buttonNotificationTime.setText("⏰ Set Notification Time");
-        }
-        
-        // Update day checkboxes
-        Set<Integer> selectedDays = getSelectedDays();
-        
-        // Calendar constants: SUNDAY=1, MONDAY=2, ..., SATURDAY=7
-        // But we'll use: 0=Sunday, 1=Monday, ..., 6=Saturday
-        binding.checkboxSunday.setChecked(selectedDays.contains(0));
-        binding.checkboxMonday.setChecked(selectedDays.contains(1));
-        binding.checkboxTuesday.setChecked(selectedDays.contains(2));
-        binding.checkboxWednesday.setChecked(selectedDays.contains(3));
-        binding.checkboxThursday.setChecked(selectedDays.contains(4));
-        binding.checkboxFriday.setChecked(selectedDays.contains(5));
-        binding.checkboxSaturday.setChecked(selectedDays.contains(6));
-        
-        // Reset flag after UI update
+        // UI updates are now handled in NotificationSettingsFragment
         isUpdatingUI = false;
-    }
-    
-    private Set<Integer> getSelectedDays() {
-        Set<Integer> days = new HashSet<>();
-        if (currentSettings.selectedDays != null && !currentSettings.selectedDays.isEmpty()) {
-            String[] dayStrings = currentSettings.selectedDays.split(",");
-            for (String dayString : dayStrings) {
-                try {
-                    days.add(Integer.parseInt(dayString.trim()));
-                } catch (NumberFormatException e) {
-                    // Skip invalid days
-                }
-            }
-        }
-        return days;
     }
 
     private void setupClickListeners() {
+        // Header buttons
         binding.buttonBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        binding.buttonInfo.setOnClickListener(v -> showInfoDialog());
+        
+        // Notification card - navigate to notification settings
+        binding.cardNotifications.setOnClickListener(v -> openNotificationSettings());
+        
+        // Subscription card
+        binding.cardSubscription.setOnClickListener(v -> openSubscriptionScreen());
+        
+        // Restore subscription button
+        binding.buttonRestoreSubscription.setOnClickListener(v -> restorePurchases());
+        
+        // Manage subscription button - open Google Play Store
+        binding.buttonManageSubscription.setOnClickListener(v -> openGooglePlaySubscription());
+        
+        // Auto-sync switch (premium)
+        binding.switchAutoSync.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isUpdatingUI) return;
+            
+            if (!premiumManager.isPremium()) {
+                binding.switchAutoSync.setChecked(false);
+                showPremiumRequiredDialog("Auto-Sync");
+                return;
+            }
+            
+            // TODO: Implement auto-sync logic
+            Toast.makeText(getContext(), isChecked ? "Auto-Sync enabled" : "Auto-Sync disabled", Toast.LENGTH_SHORT).show();
+        });
+        
+        // Auto-sync info button
+        binding.buttonAutoSyncInfo.setOnClickListener(v -> showAutoSyncInfoDialog());
+        
+        // Delete All Data card
+        binding.cardDeleteAllData.setOnClickListener(v -> showDeleteAllDataDialog());
+        
+        // FAB - Contact/Feedback
+        binding.fabContact.setOnClickListener(v -> openContactEmail());
+        
+        // Import/Export - available to all users
+        binding.cardImportExport.setOnClickListener(v -> showImportExportOptions());
+        
+        // Premium feature cards (backup/restore) are handled in updatePremiumFeatures()
+    }
 
-        binding.buttonClearWatched.setOnClickListener(v -> showClearWatchedDialog());
-        binding.buttonClearWatchlist.setOnClickListener(v -> showClearWatchlistDialog());
-        
-        binding.buttonNotificationTime.setOnClickListener(v -> showNotificationTimePicker());
-        
-        // Export/Import buttons
-        binding.buttonExportJson.setOnClickListener(v -> exportToJson());
-        binding.buttonExportCsv.setOnClickListener(v -> exportToCsv());
-        binding.buttonImportJson.setOnClickListener(v -> importFromJson());
-        binding.buttonImportCsv.setOnClickListener(v -> importFromCsv());
-        
-        // Subscription management
-        binding.buttonManageSubscription.setOnClickListener(v -> manageOrRestorePurchases());
-        binding.buttonClearSubscription.setOnClickListener(v -> showClearSubscriptionDialog());
-        
-        // Setup expandable cards
-        setupExpandableCards();
-        
-        // Day checkbox listeners
-        binding.checkboxMonday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
-        binding.checkboxTuesday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
-        binding.checkboxWednesday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
-        binding.checkboxThursday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
-        binding.checkboxFriday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
-        binding.checkboxSaturday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
-        binding.checkboxSunday.setOnCheckedChangeListener((buttonView, isChecked) -> onDayChanged());
+    private void openNotificationSettings() {
+        NotificationSettingsFragment fragment = new NotificationSettingsFragment();
+        getParentFragmentManager().beginTransaction()
+                .replace(android.R.id.content, fragment)
+                .addToBackStack(null)
+                .commit();
     }
     
-    private void onDayChanged() {
-        // Don't do anything if we're just updating the UI (loading settings)
-        if (isUpdatingUI) {
+    private void restorePurchases() {
+        if (!billingManager.isServiceConnected()) {
+            Toast.makeText(getContext(), "Billing service not ready. Please try again.", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        saveNotificationSettings();
-        
-        // Check permissions before rescheduling
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) 
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        REQUEST_NOTIFICATION_PERMISSION
-                );
-                return;
+        billingManager.setBillingStateListener(new BillingManager.BillingStateListener() {
+            @Override
+            public void onBillingSetupFinished(boolean success) {}
+            
+            @Override
+            public void onPurchaseSuccess(PremiumManager.SubscriptionType type) {}
+            
+            @Override
+            public void onPurchaseError(String error) {}
+            
+            @Override
+            public void onRestoreSuccess(boolean hasActiveSubscription) {
+                if (hasActiveSubscription) {
+                    Toast.makeText(getContext(), "✅ Subscription restored!", Toast.LENGTH_SHORT).show();
+                    updatePremiumFeatures();
+                } else {
+                    Toast.makeText(getContext(), "No active subscription found", Toast.LENGTH_SHORT).show();
+                }
+                billingManager.setBillingStateListener(null);
             }
-        }
+        });
         
-        NotificationHelper.rescheduleAllNotifications(requireContext());
-        Toast.makeText(getContext(), "✅ Notifications scheduled", Toast.LENGTH_SHORT).show();
+        billingManager.restorePurchases();
+        Toast.makeText(getContext(), "Restoring purchases...", Toast.LENGTH_SHORT).show();
     }
-
-    private void showNotificationTimePicker() {
-        int currentHour = currentSettings.notificationHour != null ? currentSettings.notificationHour : 9;
-        int currentMinute = currentSettings.notificationMinute != null ? currentSettings.notificationMinute : 0;
-        
-        TimePickerDialog timePickerDialog = new TimePickerDialog(
-                requireContext(),
-                (view, hourOfDay, minute) -> {
-                    currentSettings.notificationHour = hourOfDay;
-                    currentSettings.notificationMinute = minute;
-                    saveNotificationSettings();
-                    updateUI();
-                    
-                    // Check permissions before rescheduling
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) 
-                                != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(
-                                    requireActivity(),
-                                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                                    REQUEST_NOTIFICATION_PERMISSION
-                            );
-                        } else {
-                            NotificationHelper.rescheduleAllNotifications(requireContext());
-                        }
-                    } else {
-                        NotificationHelper.rescheduleAllNotifications(requireContext());
-                    }
-                    
-                    Toast.makeText(getContext(), "✅ Notification time set to " + String.format("%02d:%02d", hourOfDay, minute), Toast.LENGTH_SHORT).show();
-                },
-                currentHour,
-                currentMinute,
-                false
-        );
-        timePickerDialog.show();
+    
+    private void openGooglePlaySubscription() {
+        try {
+            // Open Google Play Store subscription management page
+            String packageName = requireContext().getPackageName();
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("https://play.google.com/store/account/subscriptions?package=" + packageName));
+            intent.setPackage("com.android.vending");
+            
+            if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                // Fallback to web browser if Play Store app is not available
+                intent.setPackage(null);
+                startActivity(intent);
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Unable to open Google Play Store", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void saveNotificationSettings() {
-        // Collect selected days from checkboxes
-        Set<Integer> selectedDays = new HashSet<>();
-        
-        if (binding.checkboxMonday.isChecked()) selectedDays.add(1); // Monday
-        if (binding.checkboxTuesday.isChecked()) selectedDays.add(2); // Tuesday
-        if (binding.checkboxWednesday.isChecked()) selectedDays.add(3); // Wednesday
-        if (binding.checkboxThursday.isChecked()) selectedDays.add(4); // Thursday
-        if (binding.checkboxFriday.isChecked()) selectedDays.add(5); // Friday
-        if (binding.checkboxSaturday.isChecked()) selectedDays.add(6); // Saturday
-        if (binding.checkboxSunday.isChecked()) selectedDays.add(0); // Sunday
-        
-        // Convert to comma-separated string
-        StringBuilder daysStringBuilder = new StringBuilder();
-        boolean first = true;
-        for (Integer day : selectedDays) {
-            if (!first) {
-                daysStringBuilder.append(",");
-            }
-            daysStringBuilder.append(day);
-            first = false;
-        }
-        currentSettings.selectedDays = daysStringBuilder.toString();
-        
         new Thread(() -> {
             AppDatabase.getDatabase(requireContext()).movieDao().insertNotificationSettings(currentSettings);
         }).start();
     }
 
-    private void showClearWatchedDialog() {
-        new AlertDialog.Builder(getContext())
-                .setTitle("🗑️ Clear Watched Movies")
-                .setMessage("Are you sure you want to delete all watched movies? This action cannot be undone.")
-                .setPositiveButton("🗑️ Delete All", (dialog, which) -> {
-                    watchedViewModel.clearAllWatched();
-                    Toast.makeText(getContext(), "🗑️ All watched movies deleted!", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void showClearWatchlistDialog() {
-        new AlertDialog.Builder(getContext())
-                .setTitle("🗑️ Clear Watchlist")
-                .setMessage("Are you sure you want to delete all watchlist items? This action cannot be undone.")
-                .setPositiveButton("🗑️ Delete All", (dialog, which) -> {
-                    watchlistViewModel.clearAllWatchlist();
-                    Toast.makeText(getContext(), "🎫 Watchlist cleared!", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void manageOrRestorePurchases() {
-        // Try to open Google Play subscription management first
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://play.google.com/store/account/subscriptions?package=" + requireContext().getPackageName()));
-            intent.setPackage("com.android.vending");
-            
-            // Check if Google Play Store is available
-            if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
-                startActivity(intent);
-                Toast.makeText(getContext(), "Opening Google Play subscription management...", Toast.LENGTH_SHORT).show();
-            } else {
-                // Fallback: Try without package specification
-                intent.setPackage(null);
-                if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
-                    startActivity(intent);
-                    Toast.makeText(getContext(), "Opening subscription management...", Toast.LENGTH_SHORT).show();
-                } else {
-                    // If can't open Play Store, run restore logic
-                    restorePurchases();
-                }
-            }
-        } catch (Exception e) {
-            // If opening Play Store fails, run restore logic
-            restorePurchases();
-        }
-    }
-    
-    private void restorePurchases() {
-        Toast.makeText(getContext(), "Restoring purchases...", Toast.LENGTH_SHORT).show();
-        
-        if (billingManager.isServiceConnected()) {
-            // Use BillingManager to restore from Google Play
-            billingManager.setBillingStateListener(new BillingManager.BillingStateListener() {
-                @Override
-                public void onBillingSetupFinished(boolean success) {
-                    // Not used for restore
-                }
-
-                @Override
-                public void onPurchaseSuccess(PremiumManager.SubscriptionType type) {
-                    // Not used for restore
-                }
-
-                @Override
-                public void onPurchaseError(String error) {
-                    // Not used for restore
-                }
-
-                @Override
-                public void onRestoreSuccess(boolean hasActiveSubscription) {
-                    if (hasActiveSubscription) {
-                        Toast.makeText(getContext(), "✅ Purchases restored successfully!", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getContext(), "No active subscriptions found to restore.", Toast.LENGTH_LONG).show();
-                    }
-                    // Remove listener after restore
-                    billingManager.setBillingStateListener(null);
-                }
-            });
-            
-            billingManager.restorePurchases();
-        } else {
-            // Billing service not available, check local cache
-            if (premiumManager.hasActiveSubscription()) {
-                Toast.makeText(getContext(), "✅ Found active subscription in local cache.", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getContext(), "No active subscriptions found. Billing service unavailable.", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-    
-    private void showClearSubscriptionDialog() {
-        boolean isPremium = premiumManager.isPremium();
-        String message = isPremium 
-            ? "Are you sure you want to cancel your subscription? You will lose access to premium features."
-            : "You don't have an active subscription.";
-        
-        if (!isPremium) {
-            Toast.makeText(getContext(), "No active subscription to cancel.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        new AlertDialog.Builder(getContext())
-                .setTitle("🚫 Cancel Subscription")
+    private void showPermissionWarning(String message) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("⚠️ Permission Required")
                 .setMessage(message)
-                .setPositiveButton("Cancel Subscription", (dialog, which) -> {
-                    premiumManager.clearSubscription();
-                    Toast.makeText(getContext(), "✅ Subscription cancelled. Premium features are now locked.", Toast.LENGTH_LONG).show();
+                .setPositiveButton("Open Settings", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().getPackageName());
+                    startActivity(intent);
                 })
-                .setNegativeButton("Keep Subscription", null)
+                .setNegativeButton("Cancel", null)
                 .show();
     }
-    
-    private void setupExpandableCards() {
-        // Data Management
-        setupExpandableCard(
-            binding.headerDataManagement,
-            binding.contentDataManagement,
-            binding.iconExpandDataManagement
-        );
-        
-        // Export/Import
-        setupExpandableCard(
-            binding.headerExportImport,
-            binding.contentExportImport,
-            binding.iconExpandExportImport
-        );
-        
-        // Notifications
-        setupExpandableCard(
-            binding.headerNotifications,
-            binding.contentNotifications,
-            binding.iconExpandNotifications
-        );
-        
-        // Subscription
-        setupExpandableCard(
-            binding.headerSubscription,
-            binding.contentSubscription,
-            binding.iconExpandSubscription
-        );
+
+    private void showInfoDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("About Settings")
+                .setMessage("Manage your app preferences, notifications, and data here. Premium features require a subscription.")
+                .setPositiveButton("OK", null)
+                .show();
     }
-    
-    private void setupExpandableCard(View header, View content, ImageView expandIcon) {
-        header.setOnClickListener(v -> {
-            boolean isExpanded = content.getVisibility() == View.VISIBLE;
-            
-            if (isExpanded) {
-                content.setVisibility(View.GONE);
-                rotateIcon(expandIcon, 0f);
+
+    private void showAutoSyncInfoDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Auto-Sync")
+                .setMessage("Automatically sync your data to the cloud. This feature requires a premium subscription.")
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void showDeleteAllDataDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete All Data")
+                .setMessage("Are you sure you want to permanently delete all local data? This will remove:\n\n• All watched movies\n• All watchlist items\n• All notification settings\n\nNote: Cloud backup will remain if you have one.")
+                .setPositiveButton("Delete All", (dialog, which) -> {
+                    deleteAllData();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deleteAllData() {
+        // Clear watched movies
+        watchedViewModel.clearAllWatched();
+        
+        // Clear watchlist
+        watchlistViewModel.clearAllWatchlist();
+        
+        // Clear notification settings
+        new Thread(() -> {
+            if (currentSettings != null) {
+                currentSettings.selectedDays = "";
+                currentSettings.notificationHour = null;
+                currentSettings.notificationMinute = null;
+                AppDatabase.getDatabase(requireContext()).movieDao().insertNotificationSettings(currentSettings);
+            }
+            NotificationHelper.cancelAllNotifications(requireContext());
+        }).start();
+        
+        Toast.makeText(getContext(), "✅ All local data deleted", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updatePremiumFeatures() {
+        boolean isPremium = premiumManager.isPremium();
+        
+        // Update subscription status text
+        if (isPremium) {
+            binding.textSubscriptionStatus.setText("Premium Active");
+            binding.textSubscriptionDetails.setText("You have an active premium subscription");
+        } else {
+            binding.textSubscriptionStatus.setText("Premium Subscription");
+            binding.textSubscriptionDetails.setText("Upgrade to unlock premium features");
+        }
+        
+        // Enable/disable auto-sync switch based on premium status
+        binding.switchAutoSync.setEnabled(isPremium);
+        if (!isPremium) {
+            binding.switchAutoSync.setChecked(false);
+        }
+        
+        // Set click listeners for premium feature cards
+        binding.cardBackupRestore.setOnClickListener(v -> {
+            if (isPremium) {
+                // TODO: Open backup/restore screen
+                Toast.makeText(getContext(), "Backup & Restore (Coming soon)", Toast.LENGTH_SHORT).show();
             } else {
-                content.setVisibility(View.VISIBLE);
-                rotateIcon(expandIcon, 180f);
+                showPremiumRequiredDialog("Backup & Restore");
             }
         });
     }
     
-    private void rotateIcon(ImageView icon, float toDegrees) {
-        RotateAnimation rotate = new RotateAnimation(
-            0f, toDegrees,
-            RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-            RotateAnimation.RELATIVE_TO_SELF, 0.5f
-        );
-        rotate.setDuration(200);
-        rotate.setFillAfter(true);
-        icon.startAnimation(rotate);
+    private void openSubscriptionScreen() {
+        com.entertainment.moviememo.ui.premium.PaywallFragment paywallFragment = new com.entertainment.moviememo.ui.premium.PaywallFragment();
+        paywallFragment.setOnSubscriptionPurchasedListener(() -> {
+            // Refresh premium features after purchase
+            updatePremiumFeatures();
+            Toast.makeText(getContext(), "✅ Premium activated!", Toast.LENGTH_SHORT).show();
+        });
+        
+        getParentFragmentManager().beginTransaction()
+                .replace(android.R.id.content, paywallFragment)
+                .addToBackStack(null)
+                .commit();
     }
-
+    
+    private void showImportExportOptions() {
+        String[] options = {"Export to JSON", "Export to CSV", "Import from JSON", "Import from CSV"};
+        
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Import & Export")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            exportToJson();
+                            break;
+                        case 1:
+                            exportToCsv();
+                            break;
+                        case 2:
+                            importFromJson();
+                            break;
+                        case 3:
+                            importFromCsv();
+                            break;
+                    }
+                })
+                .show();
+    }
+    
     private void exportToJson() {
         new Thread(() -> {
             ExportImportHelper.ExportResult result = ExportImportHelper.exportToJson(requireContext());
@@ -504,20 +376,6 @@ public class SettingsFragment extends Fragment {
         String[] mimeTypes = {"text/csv", "text/*"};
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         startActivityForResult(Intent.createChooser(intent, "Select CSV file"), REQUEST_CODE_IMPORT_CSV);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        
-        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                NotificationHelper.rescheduleAllNotifications(requireContext());
-                Toast.makeText(getContext(), "✅ Notifications enabled", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "⚠️ Notifications require permission to work", Toast.LENGTH_LONG).show();
-            }
-        }
     }
     
     @Override
@@ -593,5 +451,39 @@ public class SettingsFragment extends Fragment {
                 }
             });
         }).start();
+    }
+
+    private void showPremiumRequiredDialog(String featureName) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Premium Feature")
+                .setMessage(featureName + " is a premium feature. Upgrade to access this feature.")
+                .setPositiveButton("Upgrade", (dialog, which) -> {
+                    // TODO: Navigate to paywall/subscription screen
+                    Toast.makeText(getContext(), "Opening subscription page...", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void openContactEmail() {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"));
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@moviememo.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, "MovieMemo Feedback");
+        
+        if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+            startActivity(Intent.createChooser(intent, "Send email"));
+        } else {
+            Toast.makeText(getContext(), "No email app found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Update UI when returning to the fragment (e.g., after changing system settings)
+        loadNotificationSettings();
+        updatePremiumFeatures();
     }
 }
