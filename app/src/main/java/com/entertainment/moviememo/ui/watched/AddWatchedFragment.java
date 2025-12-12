@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -55,10 +54,10 @@ public class AddWatchedFragment extends Fragment {
         setupSpinners();
         setupClickListeners();
         initializeDateButton();
-        setupCompanionsAutocomplete();
         setupTheaterAutocomplete();
         setupCityAutocomplete();
         setupStreamingPlatformAutocomplete();
+        setupCompanionsAutocomplete();
         setupLocationSpinnerListener();
     }
 
@@ -157,17 +156,6 @@ public class AddWatchedFragment extends Fragment {
         binding.buttonDate.setOnClickListener(v -> showDatePicker());
         binding.buttonSave.setOnClickListener(v -> saveWatchedEntry());
         binding.buttonCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
-        
-        // Add focus change listener to companions field to capitalize first letter
-        binding.editCompanions.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) { // When field loses focus
-                String text = binding.editCompanions.getText().toString().trim();
-                if (!text.isEmpty()) {
-                    String capitalized = text.substring(0, 1).toUpperCase() + text.substring(1);
-                    binding.editCompanions.setText(capitalized);
-                }
-            }
-        });
     }
 
     private void initializeDateButton() {
@@ -180,9 +168,15 @@ public class AddWatchedFragment extends Fragment {
         // Get all previous companions from the database
         viewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
             List<String> companions = new ArrayList<>();
+            // Add common companions as defaults
+            companions.add("Partner");
+            companions.add("Friends");
+            companions.add("Family");
+            companions.add("Solo");
+            companions.add("Colleagues");
+            
             for (WatchedEntry entry : entries) {
                 if (entry.companions != null && !entry.companions.trim().isEmpty()) {
-                    // Split companions by comma and add each one
                     String[] companionArray = entry.companions.split(",");
                     for (String companion : companionArray) {
                         String trimmed = companion.trim();
@@ -195,7 +189,7 @@ public class AddWatchedFragment extends Fragment {
             
             // Set up the autocomplete adapter
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
-                android.R.layout.simple_dropdown_item_1line, companions);
+                R.layout.autocomplete_item, companions);
             binding.editCompanions.setAdapter(adapter);
         });
     }
@@ -240,12 +234,30 @@ public class AddWatchedFragment extends Fragment {
         });
     }
 
+
     private void showDatePicker() {
-        new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
-            selectedDate.set(year, month, dayOfMonth);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            binding.buttonDate.setText("📅 " + dateFormat.format(selectedDate.getTime()));
-        }, selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).show();
+        if (!isAdded() || getContext() == null) {
+            return;
+        }
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(year, month, dayOfMonth);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    binding.buttonDate.setText("📅 " + dateFormat.format(selectedDate.getTime()));
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
+        );
+        android.view.Window window = datePickerDialog.getWindow();
+        if (window != null) {
+            android.util.DisplayMetrics displayMetrics = new android.util.DisplayMetrics();
+            requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int width = (int) (displayMetrics.widthPixels * 0.9);
+            window.setLayout(width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        datePickerDialog.show();
     }
 
     private void saveWatchedEntry() {
@@ -269,7 +281,7 @@ public class AddWatchedFragment extends Fragment {
         // Set optional fields
         if (!TextUtils.isEmpty(genre)) entry.genre = genre;
         if (!TextUtils.isEmpty(notes)) entry.notes = notes;
-        if (!TextUtils.isEmpty(companions)) entry.companions = companions;
+        if (!companions.isEmpty()) entry.companions = companions;
         
         // Set language
         entry.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
@@ -287,13 +299,19 @@ public class AddWatchedFragment extends Fragment {
             if (!TextUtils.isEmpty(streamingPlatform)) entry.streamingPlatform = streamingPlatform;
         }
 
-        // Parse rating
+        // Parse rating from text input
         String ratingText = binding.editRating.getText().toString().trim();
         if (!TextUtils.isEmpty(ratingText)) {
             try {
-                entry.rating = Integer.parseInt(ratingText);
+                int rating = Integer.parseInt(ratingText);
+                if (rating >= 0 && rating <= 10) {
+                    entry.rating = rating;
+                } else {
+                    binding.editRating.setError("Rating must be between 0 and 10");
+                    return;
+                }
             } catch (NumberFormatException e) {
-                binding.editRating.setError("Invalid rating");
+                binding.editRating.setError("Invalid rating format");
                 return;
             }
         }

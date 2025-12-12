@@ -15,6 +15,8 @@ import com.entertainment.moviememo.R;
 import com.entertainment.moviememo.databinding.FragmentPaywallBinding;
 import com.entertainment.moviememo.utils.BillingManager;
 import com.entertainment.moviememo.utils.PremiumManager;
+import com.google.android.material.card.MaterialCardView;
+import androidx.core.content.ContextCompat;
 
 public class PaywallFragment extends Fragment {
 
@@ -48,6 +50,7 @@ public class PaywallFragment extends Fragment {
         
         setupBillingListener();
         setupClickListeners();
+        updateCardColors();
     }
     
     @Override
@@ -109,6 +112,7 @@ public class PaywallFragment extends Fragment {
             binding.radioYearly.setChecked(false);
             binding.radioLifetime.setChecked(false);
             selectedSubscriptionType = PremiumManager.SubscriptionType.MONTHLY;
+            updateCardColors();
         });
 
         binding.cardYearly.setOnClickListener(v -> {
@@ -116,6 +120,7 @@ public class PaywallFragment extends Fragment {
             binding.radioYearly.setChecked(true);
             binding.radioLifetime.setChecked(false);
             selectedSubscriptionType = PremiumManager.SubscriptionType.YEARLY;
+            updateCardColors();
         });
 
         binding.cardLifetime.setOnClickListener(v -> {
@@ -123,6 +128,7 @@ public class PaywallFragment extends Fragment {
             binding.radioYearly.setChecked(false);
             binding.radioLifetime.setChecked(true);
             selectedSubscriptionType = PremiumManager.SubscriptionType.LIFETIME;
+            updateCardColors();
         });
 
         // Radio button listeners
@@ -130,18 +136,21 @@ public class PaywallFragment extends Fragment {
             binding.radioYearly.setChecked(false);
             binding.radioLifetime.setChecked(false);
             selectedSubscriptionType = PremiumManager.SubscriptionType.MONTHLY;
+            updateCardColors();
         });
 
         binding.radioYearly.setOnClickListener(v -> {
             binding.radioMonthly.setChecked(false);
             binding.radioLifetime.setChecked(false);
             selectedSubscriptionType = PremiumManager.SubscriptionType.YEARLY;
+            updateCardColors();
         });
 
         binding.radioLifetime.setOnClickListener(v -> {
             binding.radioMonthly.setChecked(false);
             binding.radioYearly.setChecked(false);
             selectedSubscriptionType = PremiumManager.SubscriptionType.LIFETIME;
+            updateCardColors();
         });
 
         // Single subscribe button
@@ -149,6 +158,26 @@ public class PaywallFragment extends Fragment {
 
         // Restore purchases
         binding.btnRestore.setOnClickListener(v -> restorePurchases());
+    }
+
+    private void updateCardColors() {
+        int selectedColor = ContextCompat.getColor(requireContext(), R.color.paywall_card_selected_dark);
+        int unselectedColor = ContextCompat.getColor(requireContext(), R.color.paywall_card_dark);
+
+        // Update monthly card
+        binding.cardMonthly.setCardBackgroundColor(
+            selectedSubscriptionType == PremiumManager.SubscriptionType.MONTHLY ? selectedColor : unselectedColor
+        );
+
+        // Update yearly card
+        binding.cardYearly.setCardBackgroundColor(
+            selectedSubscriptionType == PremiumManager.SubscriptionType.YEARLY ? selectedColor : unselectedColor
+        );
+
+        // Update lifetime card
+        binding.cardLifetime.setCardBackgroundColor(
+            selectedSubscriptionType == PremiumManager.SubscriptionType.LIFETIME ? selectedColor : unselectedColor
+        );
     }
 
     private void purchaseSubscription(PremiumManager.SubscriptionType type) {

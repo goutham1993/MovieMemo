@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -64,10 +63,10 @@ public class EditWatchedFragment extends Fragment {
         setupSpinners();
         loadEntryData();
         setupClickListeners();
-        setupCompanionsAutocomplete();
         setupTheaterAutocomplete();
         setupCityAutocomplete();
         setupStreamingPlatformAutocomplete();
+        setupCompanionsAutocomplete();
         setupLocationSpinnerListener();
     }
 
@@ -176,9 +175,15 @@ public class EditWatchedFragment extends Fragment {
         // Get all previous companions from the database
         viewModel.getAllWatched().observe(getViewLifecycleOwner(), entries -> {
             List<String> companions = new ArrayList<>();
+            // Add common companions as defaults
+            companions.add("Partner");
+            companions.add("Friends");
+            companions.add("Family");
+            companions.add("Solo");
+            companions.add("Colleagues");
+            
             for (WatchedEntry entry : entries) {
                 if (entry.companions != null && !entry.companions.trim().isEmpty()) {
-                    // Split companions by comma and add each one
                     String[] companionArray = entry.companions.split(",");
                     for (String companion : companionArray) {
                         String trimmed = companion.trim();
@@ -191,7 +196,7 @@ public class EditWatchedFragment extends Fragment {
             
             // Set up the autocomplete adapter
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), 
-                android.R.layout.simple_dropdown_item_1line, companions);
+                R.layout.autocomplete_item, companions);
             binding.editCompanions.setAdapter(adapter);
         });
     }
@@ -339,10 +344,27 @@ public class EditWatchedFragment extends Fragment {
     }
 
     private void showDatePicker() {
-        new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
-            selectedDate.set(year, month, dayOfMonth);
-            binding.buttonDate.setText("📅 " + dateFormat.format(selectedDate.getTime()));
-        }, selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).show();
+        if (!isAdded() || getContext() == null) {
+            return;
+        }
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(year, month, dayOfMonth);
+                    binding.buttonDate.setText("📅 " + dateFormat.format(selectedDate.getTime()));
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
+        );
+        android.view.Window window = datePickerDialog.getWindow();
+        if (window != null) {
+            android.util.DisplayMetrics displayMetrics = new android.util.DisplayMetrics();
+            requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int width = (int) (displayMetrics.widthPixels * 0.9);
+            window.setLayout(width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        datePickerDialog.show();
     }
 
     private void updateMovie() {
@@ -365,13 +387,45 @@ public class EditWatchedFragment extends Fragment {
     }
 
     private void deleteMovie() {
-        if (entryToEdit != null) {
-            viewModel.deleteWatched(entryToEdit);
-            Toast.makeText(getContext(), "🗑️ Movie deleted!", Toast.LENGTH_SHORT).show();
-            if (getActivity() != null) {
-                getActivity().onBackPressed();
-            }
+        if (entryToEdit == null || !isAdded() || getContext() == null) {
+            return;
         }
+        
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Movie")
+                .setMessage("Are you sure you want to delete this movie? This action cannot be undone.")
+                .setPositiveButton("Delete", (d, which) -> {
+                    viewModel.deleteWatched(entryToEdit);
+                    Toast.makeText(getContext(), "🗑️ Movie deleted!", Toast.LENGTH_SHORT).show();
+                    if (getActivity() != null) {
+                        getActivity().onBackPressed();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.show();
+        
+        // Set text colors to be theme-aware
+        boolean isDarkMode = (requireContext().getResources().getConfiguration().uiMode & 
+                android.content.res.Configuration.UI_MODE_NIGHT_MASK) == 
+                android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        int textColor = androidx.core.content.ContextCompat.getColor(requireContext(), 
+                isDarkMode ? com.entertainment.moviememo.R.color.dark_on_surface : 
+                            com.entertainment.moviememo.R.color.light_on_surface);
+        android.view.View messageView = dialog.findViewById(android.R.id.message);
+        android.view.View titleView = dialog.findViewById(android.R.id.title);
+        if (messageView != null) {
+            ((android.widget.TextView) messageView).setTextColor(textColor);
+        }
+        if (titleView != null) {
+            ((android.widget.TextView) titleView).setTextColor(textColor);
+        }
+        
+        // Set Delete button text color to error color
+        int errorColor = androidx.core.content.ContextCompat.getColor(requireContext(), 
+                com.entertainment.moviememo.R.color.light_error);
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(errorColor);
     }
 
     private boolean validateForm() {
@@ -386,7 +440,7 @@ public class EditWatchedFragment extends Fragment {
             binding.editTitle.setError(null);
         }
 
-        // Validate rating (0-10)
+        // Validate rating
         String ratingText = binding.editRating.getText().toString().trim();
         if (!TextUtils.isEmpty(ratingText)) {
             try {
@@ -459,7 +513,7 @@ public class EditWatchedFragment extends Fragment {
         // Set optional fields
         if (!TextUtils.isEmpty(genre)) updatedEntry.genre = genre;
         if (!TextUtils.isEmpty(notes)) updatedEntry.notes = notes;
-        if (!TextUtils.isEmpty(companions)) updatedEntry.companions = companions;
+        if (!companions.isEmpty()) updatedEntry.companions = companions;
         
         // Set language
         updatedEntry.language = Language.values()[binding.spinnerLanguage.getSelectedItemPosition()].getCode();
@@ -477,10 +531,17 @@ public class EditWatchedFragment extends Fragment {
             if (!TextUtils.isEmpty(streamingPlatform)) updatedEntry.streamingPlatform = streamingPlatform;
         }
 
-        // Parse rating
+        // Parse rating from text input
         String ratingText = binding.editRating.getText().toString().trim();
         if (!TextUtils.isEmpty(ratingText)) {
-            updatedEntry.rating = Integer.parseInt(ratingText);
+            try {
+                int rating = Integer.parseInt(ratingText);
+                if (rating >= 0 && rating <= 10) {
+                    updatedEntry.rating = rating;
+                }
+            } catch (NumberFormatException e) {
+                // Invalid rating format, skip
+            }
         }
 
         // Parse spend
@@ -498,4 +559,5 @@ public class EditWatchedFragment extends Fragment {
 
         return updatedEntry;
     }
+
 }

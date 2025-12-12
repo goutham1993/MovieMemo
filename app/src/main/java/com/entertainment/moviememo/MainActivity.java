@@ -22,10 +22,9 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.entertainment.moviememo.data.database.AppDatabase;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import com.entertainment.moviememo.databinding.ActivityMainBinding;
 import com.entertainment.moviememo.ui.watched.WatchedListFragment;
@@ -44,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ViewPagerAdapter viewPagerAdapter;
     private MaterialToolbar toolbar;
-    private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private FloatingActionButton fab;
 
@@ -56,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         toolbar = findViewById(R.id.toolbar);
-//        tabLayout = findViewById(R.id.tabLayout);
-//        viewPager = findViewById(R.id.v);
         fab = findViewById(R.id.fab);
 
         setSupportActionBar(binding.toolbar);
@@ -76,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         
         setupViewPager();
         setupFab();
+        setupBottomNavigation();
         setupMenu();
     }
     
@@ -128,21 +125,6 @@ public class MainActivity extends AppCompatActivity {
         
         // Set offscreen page limit to prevent memory issues
         binding.viewPager.setOffscreenPageLimit(1);
-
-        new TabLayoutMediator(binding.tabLayout, binding.viewPager,
-                (tab, position) -> {
-                    switch (position) {
-                        case 0:
-                            tab.setText("🎬 Watched");
-                            break;
-                        case 1:
-                            tab.setText("🎫 Watchlist");
-                            break;
-                        case 2:
-                            tab.setText("📊 Stats");
-                            break;
-                    }
-                }).attach();
     }
 
     private void setupFab() {
@@ -167,11 +149,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         
-        // Update FAB icon based on current tab
+        // Update FAB icon based on current tab and sync bottom navigation
         binding.viewPager.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                
+                // Update toolbar title based on current tab
+                switch (position) {
+                    case 0:
+                        // Watched tab - keep "Movie Memo"
+                        binding.toolbar.setTitle(R.string.app_name);
+                        break;
+                    case 1:
+                        // Watchlist tab
+                        binding.toolbar.setTitle("Watchlist");
+                        break;
+                    case 2:
+                        // Stats tab
+                        binding.toolbar.setTitle("Stats");
+                        break;
+                }
+                
+                // Update FAB
                 switch (position) {
                     case 0:
                         binding.fab.setImageResource(android.R.drawable.ic_input_add);
@@ -185,8 +185,59 @@ public class MainActivity extends AppCompatActivity {
                         binding.fab.setVisibility(View.GONE);
                         break;
                 }
+                
+                // Sync bottom navigation with current page
+                syncBottomNavigation(position);
             }
         });
+    }
+
+    private void setupBottomNavigation() {
+        BottomNavigationView bottomNav = binding.bottomNavigation;
+        
+        // Set initial selected item based on current ViewPager position
+        syncBottomNavigation(binding.viewPager.getCurrentItem());
+        
+        // Handle bottom navigation item clicks
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            int position = -1;
+            
+            if (itemId == R.id.nav_watched) {
+                position = 0;
+            } else if (itemId == R.id.nav_watchlist) {
+                position = 1;
+            } else if (itemId == R.id.nav_stats) {
+                position = 2;
+            }
+            
+            if (position != -1 && binding.viewPager.getCurrentItem() != position) {
+                binding.viewPager.setCurrentItem(position, true);
+            }
+            
+            return true;
+        });
+    }
+    
+    private void syncBottomNavigation(int position) {
+        BottomNavigationView bottomNav = binding.bottomNavigation;
+        int menuItemId = -1;
+        
+        switch (position) {
+            case 0:
+                menuItemId = R.id.nav_watched;
+                break;
+            case 1:
+                menuItemId = R.id.nav_watchlist;
+                break;
+            case 2:
+                menuItemId = R.id.nav_stats;
+                break;
+        }
+        
+        if (menuItemId != -1) {
+            bottomNav.setSelectedItemId(menuItemId);
+        }
     }
 
     private void showAddWatchedFragment() {
@@ -209,10 +260,10 @@ public class MainActivity extends AppCompatActivity {
         // Set overflow icon tint to match theme
         if (binding.toolbar.getOverflowIcon() != null) {
             // Use theme-aware color that adapts to light/dark mode
-            android.content.res.TypedArray a = getTheme().obtainStyledAttributes(new int[]{com.google.android.material.R.attr.colorOnPrimary});
-            int tintColor = a.getColor(0, 0);
-            a.recycle();
-            binding.toolbar.getOverflowIcon().setTint(tintColor);
+//            android.content.res.TypedArray a = getTheme().obtainStyledAttributes(new int[]{com.google.android.material.R.attr.colorOnPrimary});
+//            int tintColor = a.getColor(0, 0);
+//            a.recycle();
+//            binding.toolbar.getOverflowIcon().setTint(tintColor);
         }
     }
 

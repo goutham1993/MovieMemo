@@ -311,11 +311,43 @@ public class EditWatchlistFragment extends Fragment {
     }
 
     private void deleteWatchlistItem() {
-        if (itemToEdit != null) {
-            viewModel.deleteWatchlist(itemToEdit);
-            Toast.makeText(getContext(), "🎫 Watchlist item deleted!", Toast.LENGTH_SHORT).show();
-            getParentFragmentManager().popBackStack();
+        if (itemToEdit == null || !isAdded() || getContext() == null) {
+            return;
         }
+        
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Watchlist Item")
+                .setMessage("Are you sure you want to delete this watchlist item? This action cannot be undone.")
+                .setPositiveButton("Delete", (d, which) -> {
+                    viewModel.deleteWatchlist(itemToEdit);
+                    Toast.makeText(getContext(), "🎫 Watchlist item deleted!", Toast.LENGTH_SHORT).show();
+                    getParentFragmentManager().popBackStack();
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.show();
+        
+        // Set text colors to be theme-aware
+        boolean isDarkMode = (requireContext().getResources().getConfiguration().uiMode & 
+                android.content.res.Configuration.UI_MODE_NIGHT_MASK) == 
+                android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        int textColor = androidx.core.content.ContextCompat.getColor(requireContext(), 
+                isDarkMode ? com.entertainment.moviememo.R.color.dark_on_surface : 
+                            com.entertainment.moviememo.R.color.light_on_surface);
+        android.view.View messageView = dialog.findViewById(android.R.id.message);
+        android.view.View titleView = dialog.findViewById(android.R.id.title);
+        if (messageView != null) {
+            ((android.widget.TextView) messageView).setTextColor(textColor);
+        }
+        if (titleView != null) {
+            ((android.widget.TextView) titleView).setTextColor(textColor);
+        }
+        
+        // Set Delete button text color to error color
+        int errorColor = androidx.core.content.ContextCompat.getColor(requireContext(), 
+                com.entertainment.moviememo.R.color.light_error);
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(errorColor);
     }
 
     private void convertToWatched() {

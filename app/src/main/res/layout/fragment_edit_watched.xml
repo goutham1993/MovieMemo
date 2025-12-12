@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="18dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -19,12 +19,12 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="18dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="10dp"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Rounded">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -40,7 +40,7 @@
             android:id="@+id/button_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="10dp"
             android:text="📅 Select Date"
             style="@style/Widget.Material3.Button.OutlinedButton" />
 
@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="10dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
@@ -61,7 +61,7 @@
                     android:id="@+id/edit_rating"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="⭐ Rating (1-10)"
+                    android:hint="⭐ Rating (0-10)"
                     android:inputType="number" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -88,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="10dp">
 
             <Spinner
                 android:id="@+id/spinner_location"
@@ -112,13 +112,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="10dp"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="10dp"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Rounded">
 
                 <AutoCompleteTextView
@@ -158,7 +158,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="10dp"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputLayout
@@ -185,7 +185,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="10dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
@@ -221,23 +221,23 @@
 
         </LinearLayout>
 
+        <!-- Companions Section -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="10dp"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Rounded">
 
             <AutoCompleteTextView
                 android:id="@+id/edit_companions"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:hint="👥 Companions"
-                android:inputType="textCapSentences"
-                android:completionThreshold="1"
+                android:inputType="text"
                 android:textColor="?attr/colorOnSurface"
                 android:textColorHint="?attr/colorOnSurfaceVariant"
                 android:textSize="16sp"
-                android:minHeight="56dp" />
+                android:completionThreshold="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -245,7 +245,7 @@
             android:id="@+id/spinner_language"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="10dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

@@ -74,6 +74,13 @@
         <item name="boxCornerRadiusBottomEnd">16dp</item>
     </style>
     
+    <!-- Highlighted TextInputLayout Style for Key Fields -->
+    <style name="Widget.Material3.TextInputLayout.OutlinedBox.Rounded.Highlighted" parent="Widget.Material3.TextInputLayout.OutlinedBox.Rounded">
+        <item name="boxStrokeColor">@color/text_input_highlighted_border</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxStrokeWidthFocused">2.5dp</item>
+    </style>
+    
     <!-- Custom Popup Menu Style -->
     <style name="PopupMenu.MovieMemo" parent="Widget.Material3.PopupMenu">
         <item name="android:popupBackground">@color/light_popup_background</item>
@@ -102,6 +109,21 @@
     <style name="Widget.Material3.FloatingActionButton.Orange" parent="Widget.Material3.FloatingActionButton.Primary">
         <item name="backgroundTint">@color/light_primary</item>
         <item name="tint">@color/light_on_primary</item>
+    </style>
+    
+    <!-- DatePickerDialog Style - Adapts to Light/Dark Theme -->
+    <style name="DatePickerDialog.MovieMemo" parent="android:Theme.Material.Dialog">
+        <item name="colorPrimary">?attr/colorPrimary</item>
+        <item name="colorOnPrimary">?attr/colorOnPrimary</item>
+        <item name="colorSurface">?attr/colorSurface</item>
+        <item name="colorOnSurface">?attr/colorOnSurface</item>
+        <item name="colorOnSurfaceVariant">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
     </style>
     
     <!-- Dark Theme Override -->
@@ -164,4 +186,5 @@
         <item name="android:popupMenuStyle">@style/PopupMenu.MovieMemo.Dark</item>
         <item name="android:actionOverflowMenuStyle">@style/PopupMenu.MovieMemo.Dark</item>
     </style>
+    
 </resources>
